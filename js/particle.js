@@ -14,7 +14,7 @@ function ParticleSystem( _bufferSize ) {
 
 		for ( c = 0; c < this.bufferSize; c++ ) {
 
-			vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, 1.0 - normalizedSpacing * r + normalizedHalfPixel, 0 ] );
+			vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, normalizedSpacing * r + normalizedHalfPixel, 0 ] );
 
 		}
 
@@ -33,8 +33,6 @@ function ParticleSystem( _bufferSize ) {
 
 	this.geom.addAttribute( 'here', new THREE.BufferAttribute( buffHere, 3 ) );
 	this.geom.addAttribute( 'position', new THREE.BufferAttribute( this.position, 3 ) );
-	this.geom.computeBoundingSphere();
-
 
 	this.material = new THREE.ShaderMaterial( {
 
