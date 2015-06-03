@@ -5,7 +5,7 @@ function ParticleSystem( _bufferSize ) {
 
 	this.geom = new THREE.BufferGeometry();
 
-	this.numSlices = 64;
+	this.numSlices = 32;
 	this.pCount = this.bufferSize * this.bufferSize;
 	this.pPerSlice = this.pCount / this.numSlices;
 	console.log( this.pCount, this.pPerSlice );
@@ -64,7 +64,7 @@ function ParticleSystem( _bufferSize ) {
 		transparent: true,
 		// depthTest: false,
 		// depthWrite: false,
-		// blending: THREE.AdditiveBlending
+		blending: THREE.AdditiveBlending
 
 	} );
 

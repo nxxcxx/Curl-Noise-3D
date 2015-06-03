@@ -48,7 +48,7 @@ void main() {
 	pColor.rgb = mix( colA, colB, textureLuminance );
 
 	pColor.rgb *= luminance;
-	pColor.a *= 0.05 * vLife/100.0;
+	pColor.a *= 0.1 * vLife/80.0;
 
 	// !todo: fix bug velocity buffer not sync with sorted position buffer
 	// pColor.rgb = mix( colB, colA, nVel );

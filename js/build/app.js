@@ -534,7 +534,7 @@ function ParticleSystem( _bufferSize ) {
 
 	this.geom = new THREE.BufferGeometry();
 
-	this.numSlices = 64;
+	this.numSlices = 32;
 	this.pCount = this.bufferSize * this.bufferSize;
 	this.pPerSlice = this.pCount / this.numSlices;
 	console.log( this.pCount, this.pPerSlice );
@@ -593,7 +593,7 @@ function ParticleSystem( _bufferSize ) {
 		transparent: true,
 		// depthTest: false,
 		// depthWrite: false,
-		// blending: THREE.AdditiveBlending
+		blending: THREE.AdditiveBlending
 
 	} );
 
@@ -645,7 +645,7 @@ function main() {
 		speed    : { type: 'f', value: 40.0 }
 	};
 
-	var numParSq = 256;
+	var numParSq = 512;
 	FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
