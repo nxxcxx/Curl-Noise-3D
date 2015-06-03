@@ -24,20 +24,20 @@ void main()	{
 	pos.xyz += vel.xyz;
 
 
-	if ( life <= 0.0 ) {
-
-		float spawnRange = 10.0;
-		float r  = rand( uv ) * spawnRange + 5.0;
-		float th = rand( uv + 111.0 ) * PI;
-		float ph = rand( uv + 222.0 ) * 2.0 * PI;
-
-		pos.x = r * sin( th ) * cos( ph );
-		pos.y = r * sin( th ) * sin( ph );
-		pos.z = r * cos( th );
-
-		life = rand( uv ) * 150.0 + 150.0;
-
-	}
+	// if ( life <= 0.0 ) {
+	//
+	// 	float spawnRange = 10.0;
+	// 	float r  = rand( uv ) * spawnRange + 5.0;
+	// 	float th = rand( uv + 111.0 ) * PI;
+	// 	float ph = rand( uv + 222.0 ) * 2.0 * PI;
+	//
+	// 	pos.x = r * sin( th ) * cos( ph );
+	// 	pos.y = r * sin( th ) * sin( ph );
+	// 	pos.z = r * cos( th );
+	//
+	// 	life = rand( uv ) * 150.0 + 150.0;
+	//
+	// }
 
 	// respawn at random location within spawnRange
 	// vec3 killRange = vec3( 1500.0 ) * 0.5;

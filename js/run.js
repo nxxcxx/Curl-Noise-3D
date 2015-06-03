@@ -6,7 +6,11 @@ function update() {
 
 	FBOC.step();
 
-	psys.setPositionBuffer( FBOC.getPass( 'positionPass' ).getRenderTarget() );
+	// psys.setPositionBuffer( FBOC.getPass( 'positionPass' ).getRenderTarget() );
+
+	// sortPass = sorted position
+	psys.setPositionBuffer( FBOC.getPass( 'sortPass' ).getRenderTarget() );
+
 	psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
 
 	updateGuiDisplay();
@@ -27,7 +31,7 @@ function run() {
 	renderer.render( scene, camera );
 
 	if ( sceneSettings.showFrameBuffer ) {
-		hud.setInputTexture( FBOC.getPass( 'velocityPass' ).getRenderTarget() );
+		hud.setInputTexture( FBOC.getPass( 'sortPass' ).getRenderTarget() );
 		hud.render();
 	}
 

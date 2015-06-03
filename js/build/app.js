@@ -44,7 +44,9 @@ shaderLoader.loadMultiple( SHADER_CONTAINER, {
 	particleFrag: 'shaders/particle.frag',
 
 	velocity: 'shaders/velocity.frag',
-	position: 'shaders/position.frag'
+	position: 'shaders/position.frag',
+
+	sort: 'shaders/mergeSort.frag'
 
 } );
 
@@ -78,7 +80,7 @@ var sceneSettings = {
 	enableGridHelper: false,
 	enableAxisHelper: true,
 	pause: false,
-	showFrameBuffer: false
+	showFrameBuffer: true
 
 };
 
@@ -114,7 +116,7 @@ var sceneSettings = {
 	gridHelper.position.y = -300;
 	scene.add( gridHelper );
 
-	var axisHelper = new THREE.AxisHelper( 50 );
+	var axisHelper = new THREE.AxisHelper( 1500 );
 	scene.add( axisHelper );
 
 	function updateHelpers() {
@@ -160,8 +162,8 @@ function initGui() {
 		gui_settings.add( uniformsInput.timeMult, 'value', 0.0, 0.5, 0.01 ).name( 'Time Multiplier' );
 		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 20.0, 0.01 ).name( 'Frequency' );
 		gui_settings.add( uniformsInput.speed, 'value', 0.0, 200.0, 0.01 ).name( 'Speed' );
-		gui_settings.add( psys.material.uniforms.size, 'value', 0.0, 10.0, 0.01 ).name( 'Size' );
-		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 5.0, 0.01 ).name( 'Luminance' );
+		gui_settings.add( psys.material.uniforms.size, 'value', 0.0, 100.0, 0.01 ).name( 'Size' );
+		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 50.0, 0.01 ).name( 'Luminance' );
 		gui_settings.add( sceneSettings, 'showFrameBuffer' ).name( 'Show Frame Buffer' );
 
 
@@ -224,6 +226,12 @@ function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 	} );
 
 	this.passes = [];
+
+	// sorting
+	this.currentStep = 0;
+	this.totalSortStep = ( Math.log2( this.bufferSize*this.bufferSize ) * ( Math.log2( this.bufferSize * this.bufferSize ) + 1 ) ) / 2;
+	this.sortPass = -1;
+	this.sortStage = -1;
 
 }
 
@@ -309,10 +317,50 @@ FBOCompositor.prototype = {
 
 			this.updatePassDependencies();
 			var currPass = this.passes[ i ];
-			this._renderPass( currPass.getShader(), currPass.getRenderTarget() );
-			currPass.swapBuffer();
 
-		}
+			if ( currPass.name === 'sortPass' ) {
+
+				// copy position buffer to sort buffer
+				this.renderInitialBuffer( this.getPass( 'positionPass' ).getRenderTarget(), currPass.name );
+
+				// sortPass
+				for ( var s = 0; s <= this.totalSortStep; s ++ ) {
+
+					this.sortPass --;
+			      if ( this.sortPass  < 0 ) {
+						this.sortStage ++;
+						this.sortPass = this.sortStage;
+			      }
+
+					currPass.uniforms.pass.value  = 1 << this.sortPass;
+					currPass.uniforms.stage.value = 1 << this.sortStage;
+
+					// console.log( 'Stage:', this.sortStage, 1 << this.sortStage );
+					// console.log( 'Pass:', this.sortPass, 1 << this.sortPass );
+					// console.log( '------------------------------------------' );
+
+					this._renderPass( currPass.getShader(), currPass.getRenderTarget() );
+					currPass.swapBuffer();
+
+					this.currentStep ++;
+
+				}
+
+				// if ( this.currentStep >= this.totalSortStep ) {
+					this.currentStep = 0;
+					this.sortPass = -1;
+					this.sortStage = -1;
+				// }
+
+			} else {
+
+				// other passes
+				this._renderPass( currPass.getShader(), currPass.getRenderTarget() );
+				currPass.swapBuffer();
+
+			}
+
+		} // end loop
 
 	}
 
@@ -411,7 +459,7 @@ function HUD( renderer ) {
 
 	this.renderer = renderer;
 	this.HUDMargin = 0.05;
-	var hudHeight = 2.0 / 4.0; // 2.0 = full screen size
+	var hudHeight = 2.0 / 3.0; // 2.0 = full screen size
 	var hudWidth = hudHeight;
 
 	this.HUDCam = new THREE.OrthographicCamera( -screenRatio, screenRatio, 1, -1, 1, 10 );
@@ -485,6 +533,16 @@ function ParticleSystem( _bufferSize ) {
 
 	this.geom = new THREE.BufferGeometry();
 
+	this.numSlices = 64;
+	this.pCount = this.bufferSize * this.bufferSize;
+	this.pPerSlice = this.pCount / this.numSlices;
+	console.log( this.pCount, this.pPerSlice );
+	for( var i = 0; i < this.numSlices; i ++ ) {
+
+		this.geom.addDrawCall( 0, this.pPerSlice, i * this.pPerSlice );
+
+	}
+
 	this.position = new Float32Array( this.bufferSize * this.bufferSize * 3 );
 
 	var vertexHere = [];
@@ -494,7 +552,7 @@ function ParticleSystem( _bufferSize ) {
 
 		for ( c = 0; c < this.bufferSize; c++ ) {
 
-			vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, 1.0 - normalizedSpacing * r + normalizedHalfPixel, 0 ] );
+			vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, normalizedSpacing * r + normalizedHalfPixel, 0 ] );
 
 		}
 
@@ -513,8 +571,6 @@ function ParticleSystem( _bufferSize ) {
 
 	this.geom.addAttribute( 'here', new THREE.BufferAttribute( buffHere, 3 ) );
 	this.geom.addAttribute( 'position', new THREE.BufferAttribute( this.position, 3 ) );
-	this.geom.computeBoundingSphere();
-
 
 	this.material = new THREE.ShaderMaterial( {
 
@@ -523,8 +579,8 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f', value: 2.0 },
-			luminance      : { type: 'f', value: 2.0 },
+			size           : { type: 'f', value: 20.0 },
+			luminance      : { type: 'f', value: 10.0 },
 			particleTexture: { type: 't', value: TEXTURES.electric },
 			positionBuffer : { type: 't', value: null },
 			velocityBuffer : { type: 't', value: null }
@@ -534,15 +590,15 @@ function ParticleSystem( _bufferSize ) {
 		fragmentShader: SHADER_CONTAINER.particleFrag,
 
 		transparent: true,
-		depthTest: false,
-		depthWrite: false,
-		blending: THREE.AdditiveBlending
+		// depthTest: false,
+		// depthWrite: false,
+		// blending: THREE.AdditiveBlending,
 
 	} );
 
-	this.particleSystem = new THREE.PointCloud( this.geom, this.material );
-	this.particleSystem.frustumCulled = false;
-	scene.add( this.particleSystem );
+	this.particleMesh = new THREE.PointCloud( this.geom, this.material );
+	this.particleMesh.frustumCulled = false;
+	scene.add( this.particleMesh );
 
 }
 
@@ -588,10 +644,21 @@ function main() {
 		speed    : { type: 'f', value: 40.0 }
 	};
 
-	var numParSq = 512;
+	var numParSq = 256;
 	FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
+
+
+
+	sortUniforms = {
+		pass: { type: 'f', value: -1 },
+		stage: { type: 'f', value: -1 }
+	};
+	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
+	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
+
+
 
 	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
 	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
@@ -633,7 +700,11 @@ function update() {
 
 	FBOC.step();
 
-	psys.setPositionBuffer( FBOC.getPass( 'positionPass' ).getRenderTarget() );
+	// psys.setPositionBuffer( FBOC.getPass( 'positionPass' ).getRenderTarget() );
+
+	// sortPass = sorted position
+	psys.setPositionBuffer( FBOC.getPass( 'sortPass' ).getRenderTarget() );
+
 	psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
 
 	updateGuiDisplay();
@@ -654,7 +725,7 @@ function run() {
 	renderer.render( scene, camera );
 
 	if ( sceneSettings.showFrameBuffer ) {
-		hud.setInputTexture( FBOC.getPass( 'velocityPass' ).getRenderTarget() );
+		hud.setInputTexture( FBOC.getPass( 'sortPass' ).getRenderTarget() );
 		hud.render();
 	}
 

@@ -5,6 +5,16 @@ function ParticleSystem( _bufferSize ) {
 
 	this.geom = new THREE.BufferGeometry();
 
+	this.numSlices = 64;
+	this.pCount = this.bufferSize * this.bufferSize;
+	this.pPerSlice = this.pCount / this.numSlices;
+	console.log( this.pCount, this.pPerSlice );
+	for( var i = 0; i < this.numSlices; i ++ ) {
+
+		this.geom.addDrawCall( 0, this.pPerSlice, i * this.pPerSlice );
+
+	}
+
 	this.position = new Float32Array( this.bufferSize * this.bufferSize * 3 );
 
 	var vertexHere = [];
@@ -14,7 +24,7 @@ function ParticleSystem( _bufferSize ) {
 
 		for ( c = 0; c < this.bufferSize; c++ ) {
 
-			vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, 1.0 - normalizedSpacing * r + normalizedHalfPixel, 0 ] );
+			vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, normalizedSpacing * r + normalizedHalfPixel, 0 ] );
 
 		}
 
@@ -33,8 +43,6 @@ function ParticleSystem( _bufferSize ) {
 
 	this.geom.addAttribute( 'here', new THREE.BufferAttribute( buffHere, 3 ) );
 	this.geom.addAttribute( 'position', new THREE.BufferAttribute( this.position, 3 ) );
-	this.geom.computeBoundingSphere();
-
 
 	this.material = new THREE.ShaderMaterial( {
 
@@ -43,8 +51,8 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f', value: 2.0 },
-			luminance      : { type: 'f', value: 2.0 },
+			size           : { type: 'f', value: 20.0 },
+			luminance      : { type: 'f', value: 10.0 },
 			particleTexture: { type: 't', value: TEXTURES.electric },
 			positionBuffer : { type: 't', value: null },
 			velocityBuffer : { type: 't', value: null }
@@ -54,15 +62,15 @@ function ParticleSystem( _bufferSize ) {
 		fragmentShader: SHADER_CONTAINER.particleFrag,
 
 		transparent: true,
-		depthTest: false,
-		depthWrite: false,
-		blending: THREE.AdditiveBlending
+		// depthTest: false,
+		// depthWrite: false,
+		// blending: THREE.AdditiveBlending,
 
 	} );
 
-	this.particleSystem = new THREE.PointCloud( this.geom, this.material );
-	this.particleSystem.frustumCulled = false;
-	scene.add( this.particleSystem );
+	this.particleMesh = new THREE.PointCloud( this.geom, this.material );
+	this.particleMesh.frustumCulled = false;
+	scene.add( this.particleMesh );
 
 }
 

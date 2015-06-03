@@ -33,6 +33,12 @@ function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 
 	this.passes = [];
 
+	// sorting
+	this.currentStep = 0;
+	this.totalSortStep = ( Math.log2( this.bufferSize*this.bufferSize ) * ( Math.log2( this.bufferSize * this.bufferSize ) + 1 ) ) / 2;
+	this.sortPass = -1;
+	this.sortStage = -1;
+
 }
 
 FBOCompositor.prototype = {
@@ -117,10 +123,50 @@ FBOCompositor.prototype = {
 
 			this.updatePassDependencies();
 			var currPass = this.passes[ i ];
-			this._renderPass( currPass.getShader(), currPass.getRenderTarget() );
-			currPass.swapBuffer();
 
-		}
+			if ( currPass.name === 'sortPass' ) {
+
+				// copy position buffer to sort buffer
+				this.renderInitialBuffer( this.getPass( 'positionPass' ).getRenderTarget(), currPass.name );
+
+				// sortPass
+				for ( var s = 0; s <= this.totalSortStep; s ++ ) {
+
+					this.sortPass --;
+			      if ( this.sortPass  < 0 ) {
+						this.sortStage ++;
+						this.sortPass = this.sortStage;
+			      }
+
+					currPass.uniforms.pass.value  = 1 << this.sortPass;
+					currPass.uniforms.stage.value = 1 << this.sortStage;
+
+					// console.log( 'Stage:', this.sortStage, 1 << this.sortStage );
+					// console.log( 'Pass:', this.sortPass, 1 << this.sortPass );
+					// console.log( '------------------------------------------' );
+
+					this._renderPass( currPass.getShader(), currPass.getRenderTarget() );
+					currPass.swapBuffer();
+
+					this.currentStep ++;
+
+				}
+
+				// if ( this.currentStep >= this.totalSortStep ) {
+					this.currentStep = 0;
+					this.sortPass = -1;
+					this.sortStage = -1;
+				// }
+
+			} else {
+
+				// other passes
+				this._renderPass( currPass.getShader(), currPass.getRenderTarget() );
+				currPass.swapBuffer();
+
+			}
+
+		} // end loop
 
 	}
 

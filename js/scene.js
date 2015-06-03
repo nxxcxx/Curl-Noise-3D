@@ -19,7 +19,7 @@ var sceneSettings = {
 	enableGridHelper: false,
 	enableAxisHelper: true,
 	pause: false,
-	showFrameBuffer: false
+	showFrameBuffer: true
 
 };
 
@@ -55,7 +55,7 @@ var sceneSettings = {
 	gridHelper.position.y = -300;
 	scene.add( gridHelper );
 
-	var axisHelper = new THREE.AxisHelper( 50 );
+	var axisHelper = new THREE.AxisHelper( 1500 );
 	scene.add( axisHelper );
 
 	function updateHelpers() {

@@ -43,7 +43,7 @@ void main() {
 	vec3 colB = vec3( 0.02, 0.04, 0.1 );
 
 	pColor.rgb = mix( colB, colA, nVel );
-	pColor.rgb = pow( abs( pColor.rgb ), vec3( 0.8 ) ) * luminance * vLife/200.0;
+	pColor.rgb = pow( abs( pColor.rgb ), vec3( 0.8 ) ) * luminance; //* vLife/200.0;
 
 	// vec4 depth = vec4( vec3( 1.0 - vDepth * 0.0005 ) 1.0 ); // particle depth map
 

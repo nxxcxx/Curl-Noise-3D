@@ -9,10 +9,21 @@ function main() {
 		speed    : { type: 'f', value: 40.0 }
 	};
 
-	var numParSq = 512;
+	var numParSq = 256;
 	FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
+
+
+
+	sortUniforms = {
+		pass: { type: 'f', value: -1 },
+		stage: { type: 'f', value: -1 }
+	};
+	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
+	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
+
+
 
 	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
 	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
