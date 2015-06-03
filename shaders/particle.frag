@@ -42,8 +42,17 @@ void main() {
 	vec3 colA = vec3( 0.0, 0.0, 0.0 );
 	vec3 colB = vec3( 0.02, 0.04, 0.1 );
 
-	pColor.rgb = mix( colB, colA, nVel );
-	pColor.rgb = pow( abs( pColor.rgb ), vec3( 0.8 ) ) * luminance; //* vLife/200.0;
+	vec3 luminanceCoef = vec3( 0.299, 0.587, 0.114 );
+	float textureLuminance = clamp( dot( pColor.rgb, luminanceCoef ), 0.0, 1.0 );
+	pColor.rgb = mix( colB, colA, textureLuminance );
+
+	pColor.rgb *= luminance;
+	pColor.a *= 0.08;
+
+	// !todo: fix bug velocity buffer not sync with sorted position buffer
+	// pColor.rgb = mix( colB, colA, nVel );
+
+	// pColor.rgb = pow( abs( pColor.rgb ), vec3( 0.8 ) ) * luminance; //* vLife/200.0;
 
 	// vec4 depth = vec4( vec3( 1.0 - vDepth * 0.0005 ) 1.0 ); // particle depth map
 

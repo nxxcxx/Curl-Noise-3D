@@ -129,6 +129,7 @@ FBOCompositor.prototype = {
 				// copy position buffer to sort buffer
 				this.renderInitialBuffer( this.getPass( 'positionPass' ).getRenderTarget(), currPass.name );
 
+
 				// sortPass
 				for ( var s = 0; s <= this.totalSortStep; s ++ ) {
 

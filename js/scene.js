@@ -31,7 +31,7 @@ var sceneSettings = {
 	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
 	// camera orbit control
 	cameraCtrl = new THREE.OrbitControls( camera, container );
-	cameraCtrl.object.position.z = 2000;
+	cameraCtrl.object.position.z = 500;
 	cameraCtrl.update();
 
 // ---- Renderer

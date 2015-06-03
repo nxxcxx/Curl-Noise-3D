@@ -92,7 +92,7 @@ var sceneSettings = {
 	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
 	// camera orbit control
 	cameraCtrl = new THREE.OrbitControls( camera, container );
-	cameraCtrl.object.position.z = 2000;
+	cameraCtrl.object.position.z = 500;
 	cameraCtrl.update();
 
 // ---- Renderer
@@ -322,6 +322,7 @@ FBOCompositor.prototype = {
 
 				// copy position buffer to sort buffer
 				this.renderInitialBuffer( this.getPass( 'positionPass' ).getRenderTarget(), currPass.name );
+
 
 				// sortPass
 				for ( var s = 0; s <= this.totalSortStep; s ++ ) {
@@ -705,6 +706,7 @@ function update() {
 	// sortPass = sorted position
 	psys.setPositionBuffer( FBOC.getPass( 'sortPass' ).getRenderTarget() );
 
+	// !todo: fix bug particle flickering because velocity buffer not sync with sorted position buffer
 	psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
 
 	updateGuiDisplay();

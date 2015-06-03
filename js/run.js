@@ -11,6 +11,7 @@ function update() {
 	// sortPass = sorted position
 	psys.setPositionBuffer( FBOC.getPass( 'sortPass' ).getRenderTarget() );
 
+	// !todo: fix bug particle flickering because velocity buffer not sync with sorted position buffer
 	psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
 
 	updateGuiDisplay();
