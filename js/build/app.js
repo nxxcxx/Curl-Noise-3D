@@ -594,6 +594,7 @@ function main() {
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
 
 	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
+	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
 
 	psys = new ParticleSystem( numParSq );
 	var initialPositionDataTexture = psys.generatePositionTexture();
@@ -629,6 +630,7 @@ function main() {
 function update() {
 
 	uniformsInput.time.value = clock.getElapsedTime();
+
 	FBOC.step();
 
 	psys.setPositionBuffer( FBOC.getPass( 'positionPass' ).getRenderTarget() );

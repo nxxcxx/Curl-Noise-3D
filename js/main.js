@@ -15,6 +15,7 @@ function main() {
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
 
 	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
+	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
 
 	psys = new ParticleSystem( numParSq );
 	var initialPositionDataTexture = psys.generatePositionTexture();

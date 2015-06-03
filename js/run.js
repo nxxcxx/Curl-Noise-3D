@@ -3,6 +3,7 @@
 function update() {
 
 	uniformsInput.time.value = clock.getElapsedTime();
+
 	FBOC.step();
 
 	psys.setPositionBuffer( FBOC.getPass( 'positionPass' ).getRenderTarget() );

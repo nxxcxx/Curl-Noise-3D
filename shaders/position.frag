@@ -2,8 +2,9 @@
 uniform vec2 resolution;
 uniform sampler2D velocityBuffer;
 uniform sampler2D mirrorBuffer;
+uniform float time;
 
-#define PI 3.141592;
+const float PI = 3.141592;
 
 float rand( vec2 co ) {
 	return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
