@@ -79,7 +79,7 @@ FBOCompositor.prototype = {
 		var self = this;
 		this.passes.forEach( function ( currPass ) {
 
-			Object.keys( currPass.inputTargetList ).forEach( function ( shaderInputName ) {
+			Object.keys( currPass.inputTargetList ).forEach( function bindTarget( shaderInputName ) {
 
 				var targetPass = currPass.inputTargetList[ shaderInputName ];
 				currPass.setInputTarget( shaderInputName, self.getPass( targetPass ).getRenderTarget() );

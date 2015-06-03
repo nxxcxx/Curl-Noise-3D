@@ -29,10 +29,11 @@ function main() {
 
 	bgMesh = new THREE.Mesh(
 		// new THREE.BoxGeometry( 1500, 1500, 1500 ),
-		new THREE.SphereGeometry( 1000, 64, 64 ),
+		// new THREE.SphereGeometry( 1000, 64, 64 ),
+		new THREE.IcosahedronGeometry( 1000, 3 ),
 		new THREE.MeshBasicMaterial( {
 			side: THREE.BackSide,
-			color: 0x101010
+			color: 0x080809
 		} )
 	);
 

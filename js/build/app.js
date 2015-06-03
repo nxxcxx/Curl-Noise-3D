@@ -124,19 +124,19 @@ var sceneSettings = {
 	updateHelpers();
 
 // ---- Lights
-	// back light
-	light = new THREE.DirectionalLight( 0xffffff, 0.8 );
-	light.position.set( 100, 230, -100 );
-	scene.add( light );
-
-	// hemi
-	light = new THREE.HemisphereLight( 0x00ffff, 0x29295e, 1 );
-	light.position.set( 370, 200, 20 );
-	scene.add( light );
-
-	// ambient
-	light = new THREE.AmbientLight( 0x111111 );
-	scene.add( light );
+	// // back light
+	// light = new THREE.DirectionalLight( 0xffffff, 0.8 );
+	// light.position.set( 100, 230, -100 );
+	// scene.add( light );
+	//
+	// // hemi
+	// light = new THREE.HemisphereLight( 0x00ffff, 0x29295e, 1 );
+	// light.position.set( 370, 200, 20 );
+	// scene.add( light );
+	//
+	// // ambient
+	// light = new THREE.AmbientLight( 0x111111 );
+	// scene.add( light );
 
 // Source: js/gui.js
 /* exported gui, gui_display, gui_settings, initGui, updateGuiDisplay */
@@ -271,7 +271,7 @@ FBOCompositor.prototype = {
 		var self = this;
 		this.passes.forEach( function ( currPass ) {
 
-			Object.keys( currPass.inputTargetList ).forEach( function ( shaderInputName ) {
+			Object.keys( currPass.inputTargetList ).forEach( function bindTarget( shaderInputName ) {
 
 				var targetPass = currPass.inputTargetList[ shaderInputName ];
 				currPass.setInputTarget( shaderInputName, self.getPass( targetPass ).getRenderTarget() );
@@ -606,10 +606,11 @@ function main() {
 
 	bgMesh = new THREE.Mesh(
 		// new THREE.BoxGeometry( 1500, 1500, 1500 ),
-		new THREE.SphereGeometry( 1000, 64, 64 ),
+		// new THREE.SphereGeometry( 1000, 64, 64 ),
+		new THREE.IcosahedronGeometry( 1000, 3 ),
 		new THREE.MeshBasicMaterial( {
 			side: THREE.BackSide,
-			color: 0x101010
+			color: 0x080809
 		} )
 	);
 
