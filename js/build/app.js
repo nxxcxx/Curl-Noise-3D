@@ -540,9 +540,9 @@ function ParticleSystem( _bufferSize ) {
 
 	} );
 
-	this.particleSystem = new THREE.PointCloud( this.geom, this.material );
-	this.particleSystem.frustumCulled = false;
-	scene.add( this.particleSystem );
+	this.particleMesh = new THREE.PointCloud( this.geom, this.material );
+	this.particleMesh.frustumCulled = false;
+	scene.add( this.particleMesh );
 
 }
 
