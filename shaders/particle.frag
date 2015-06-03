@@ -40,14 +40,15 @@ void main() {
 	float nVel = length( vVel ) * 0.09;
 
 	vec3 colA = vec3( 0.0, 0.0, 0.0 );
-	vec3 colB = vec3( 0.02, 0.04, 0.1 );
+	vec3 colB = vec3( 0.02, 0.08, 0.9 );	// vec3 colB = vec3( 0.02, 0.04, 0.1 );
 
 	vec3 luminanceCoef = vec3( 0.299, 0.587, 0.114 );
-	float textureLuminance = clamp( dot( pColor.rgb, luminanceCoef ), 0.0, 1.0 );
-	pColor.rgb = mix( colB, colA, textureLuminance );
+	float textureLuminance = clamp( dot( pColor.rgb, luminanceCoef ), 0.0, 1.0 ) * 2.0;
+
+	pColor.rgb = mix( colA, colB, textureLuminance );
 
 	pColor.rgb *= luminance;
-	pColor.a *= 0.08;
+	pColor.a *= 0.01;
 
 	// !todo: fix bug velocity buffer not sync with sorted position buffer
 	// pColor.rgb = mix( colB, colA, nVel );
