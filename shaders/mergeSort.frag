@@ -3,6 +3,7 @@ uniform vec2 resolution;
 uniform sampler2D mirrorBuffer;
 uniform float pass;
 uniform float stage;
+uniform vec3 lookAt;
 
 bool selectTex( vec2 uv, vec2 tx ) {
 
@@ -39,10 +40,14 @@ void main() {
 	float adr = i + compare * pass;
 	vec4 partner = texture2D( mirrorBuffer, vec2( floor( mod( adr, resolution.x ) ) / resolution.x, floor( adr / resolution.x ) / resolution.y ) ).rgba;
 
-	float selfCompareCoord = self.z;
-	float partCompareCoord = partner.z;
+	// test sort specific axis
+	// float selfCompareCoord = self.z;
+	// float partCompareCoord = partner.z;
 
-	vec4 color = (selfCompareCoord * compare < partCompareCoord * compare) ? self : partner;
+	float selfProjectedLen = dot( self.xyz, lookAt );
+	float partProjectedLen = dot( partner.xyz, lookAt );
+
+	vec4 color = (selfProjectedLen * compare < partProjectedLen * compare) ? self : partner;
 
 	gl_FragColor = color;
 

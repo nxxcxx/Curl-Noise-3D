@@ -51,8 +51,8 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f', value: 20.0 },
-			luminance      : { type: 'f', value: 10.0 },
+			size           : { type: 'f', value: 15.0 },
+			luminance      : { type: 'f', value: 13.0 },
 			particleTexture: { type: 't', value: TEXTURES.electric },
 			positionBuffer : { type: 't', value: null },
 			velocityBuffer : { type: 't', value: null }
@@ -64,7 +64,7 @@ function ParticleSystem( _bufferSize ) {
 		transparent: true,
 		// depthTest: false,
 		// depthWrite: false,
-		// blending: THREE.AdditiveBlending,
+		// blending: THREE.AdditiveBlending
 
 	} );
 
@@ -91,7 +91,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = THREE.Math.randFloat( 150, 300 ); // initial particle life, todo: move to separate texture
+		data[ i + 3 ] = 0; // initial particle life, todo: move to separate texture
 
 	}
 

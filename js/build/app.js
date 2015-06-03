@@ -92,7 +92,7 @@ var sceneSettings = {
 	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
 	// camera orbit control
 	cameraCtrl = new THREE.OrbitControls( camera, container );
-	cameraCtrl.object.position.z = 500;
+	cameraCtrl.object.position.z = 1500;
 	cameraCtrl.update();
 
 // ---- Renderer
@@ -580,8 +580,8 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f', value: 20.0 },
-			luminance      : { type: 'f', value: 10.0 },
+			size           : { type: 'f', value: 15.0 },
+			luminance      : { type: 'f', value: 13.0 },
 			particleTexture: { type: 't', value: TEXTURES.electric },
 			positionBuffer : { type: 't', value: null },
 			velocityBuffer : { type: 't', value: null }
@@ -593,7 +593,7 @@ function ParticleSystem( _bufferSize ) {
 		transparent: true,
 		// depthTest: false,
 		// depthWrite: false,
-		// blending: THREE.AdditiveBlending,
+		// blending: THREE.AdditiveBlending
 
 	} );
 
@@ -620,7 +620,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = THREE.Math.randFloat( 150, 300 ); // initial particle life, todo: move to separate texture
+		data[ i + 3 ] = 0; // initial particle life, todo: move to separate texture
 
 	}
 
@@ -640,8 +640,8 @@ function main() {
 
 	uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
-		timeMult : { type: 'f', value: 0.2 },
-		noiseFreq: { type: 'f', value: 1.6 },
+		timeMult : { type: 'f', value: 0.15 },
+		noiseFreq: { type: 'f', value: 1.3 },
 		speed    : { type: 'f', value: 40.0 }
 	};
 
@@ -651,10 +651,10 @@ function main() {
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
 
 
-
 	sortUniforms = {
 		pass: { type: 'f', value: -1 },
-		stage: { type: 'f', value: -1 }
+		stage: { type: 'f', value: -1 },
+		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) }
 	};
 	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
 	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
@@ -695,9 +695,14 @@ function main() {
 // Source: js/run.js
 /* exported run */
 
+
 function update() {
 
 	uniformsInput.time.value = clock.getElapsedTime();
+
+	sortUniforms.lookAt.value.set( 0, 0, 1 );
+	sortUniforms.lookAt.value.applyQuaternion( camera.quaternion );
+
 
 	FBOC.step();
 
@@ -708,6 +713,9 @@ function update() {
 
 	// !todo: fix bug particle flickering because velocity buffer not sync with sorted position buffer
 	psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
+
+	// !todo: when rotate mesh, sorted axis is wrong
+	// psys.particleMesh.rotateY( clock.getDelta() );
 
 	updateGuiDisplay();
 

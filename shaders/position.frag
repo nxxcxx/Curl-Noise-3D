@@ -35,7 +35,8 @@ void main()	{
 		pos.y = r * sin( th ) * sin( ph );
 		pos.z = r * cos( th );
 
-		life = rand( uv ) * 150.0 + 150.0;
+		// !todo: life = life - deltaTime ( uniform )
+		life = rand( uv ) * 100.0 + 60.0;
 
 	}
 

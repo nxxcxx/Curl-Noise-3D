@@ -1,8 +1,13 @@
 /* exported run */
 
+
 function update() {
 
 	uniformsInput.time.value = clock.getElapsedTime();
+
+	sortUniforms.lookAt.value.set( 0, 0, 1 );
+	sortUniforms.lookAt.value.applyQuaternion( camera.quaternion );
+
 
 	FBOC.step();
 
@@ -13,6 +18,9 @@ function update() {
 
 	// !todo: fix bug particle flickering because velocity buffer not sync with sorted position buffer
 	psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
+
+	// !todo: when rotate mesh, sorted axis is wrong
+	// psys.particleMesh.rotateY( clock.getDelta() );
 
 	updateGuiDisplay();
 

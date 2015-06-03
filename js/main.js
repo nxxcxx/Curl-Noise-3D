@@ -4,8 +4,8 @@ function main() {
 
 	uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
-		timeMult : { type: 'f', value: 0.2 },
-		noiseFreq: { type: 'f', value: 1.6 },
+		timeMult : { type: 'f', value: 0.15 },
+		noiseFreq: { type: 'f', value: 1.3 },
 		speed    : { type: 'f', value: 40.0 }
 	};
 
@@ -15,10 +15,10 @@ function main() {
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
 
 
-
 	sortUniforms = {
 		pass: { type: 'f', value: -1 },
-		stage: { type: 'f', value: -1 }
+		stage: { type: 'f', value: -1 },
+		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) }
 	};
 	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
 	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
