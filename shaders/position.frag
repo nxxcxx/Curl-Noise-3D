@@ -16,13 +16,11 @@ void main()	{
 
 	vec3 pos = texture2D( mirrorBuffer, uv ).xyz;
 
-	float life = texture2D( mirrorBuffer, uv ).w;
-	life -= 0.2;
-
 	vec3 vel = texture2D( velocityBuffer, uv ).xyz;
-
 	pos.xyz += vel.xyz;
 
+	float life = texture2D( mirrorBuffer, uv ).w;
+	life -= 0.2;
 
 	if ( life <= 0.0 ) {
 
