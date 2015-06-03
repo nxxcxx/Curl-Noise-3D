@@ -91,7 +91,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = 0; // initial particle life, todo: move to separate texture
+		data[ i + 3 ] = THREE.Math.randFloat( 50, 250 ); // initial particle life, todo: move to separate texture
 
 	}
 

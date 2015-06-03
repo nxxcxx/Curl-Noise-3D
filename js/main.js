@@ -9,7 +9,7 @@ function main() {
 		speed    : { type: 'f', value: 40.0 }
 	};
 
-	var numParSq = 512;
+	var numParSq = 256;
 	FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );

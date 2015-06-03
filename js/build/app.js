@@ -620,7 +620,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = 0; // initial particle life, todo: move to separate texture
+		data[ i + 3 ] = THREE.Math.randFloat( 50, 250 ); // initial particle life, todo: move to separate texture
 
 	}
 
@@ -645,7 +645,7 @@ function main() {
 		speed    : { type: 'f', value: 40.0 }
 	};
 
-	var numParSq = 512;
+	var numParSq = 256;
 	FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
