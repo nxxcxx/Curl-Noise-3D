@@ -26,7 +26,7 @@ void main()	{
 
 	if ( life <= 0.0 ) {
 
-		float spawnRange = 20.0;
+		float spawnRange = 50.0;
 		float r  = rand( uv ) * spawnRange + 5.0;
 		float th = rand( uv + 111.0 ) * PI;
 		float ph = rand( uv + 222.0 ) * 2.0 * PI;
@@ -36,7 +36,7 @@ void main()	{
 		pos.z = r * cos( th );
 
 		// !todo: life = life - deltaTime ( uniform )
-		life = rand( uv ) * 100.0 + 60.0;
+		life = rand( uv ) * 200.0 + 50.0;
 
 	}
 

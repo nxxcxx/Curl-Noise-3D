@@ -45,6 +45,8 @@ void main() {
 	color.rgb *= alpha;
 	color.a = 1.0 * ( vLife * 0.0025 );
 
+	color.a *= 1.0 - distance( gl_PointCoord.xy, vec2( 0.5, 0.5 ) );
+
 	gl_FragColor = color.rgba;
 
 }

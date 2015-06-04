@@ -42,7 +42,7 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 10.0 },
+			size           : { type: 'f' , value : 7.0 },
 			luminance      : { type: 'f' , value : 50.0 },
 			particleTexture: { type: 't' , value : TEXTURES.electric },
 			positionBuffer : { type: 't' , value : null },
@@ -90,7 +90,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = THREE.Math.randFloat( 50, 250 ); // initial particle life, todo: move to separate texture
+		data[ i + 3 ] = THREE.Math.randFloat( 0, 250 ); // initial particle life, todo: move to separate texture
 
 	}
 
@@ -116,8 +116,8 @@ ParticleSystem.prototype.init = function () {
 	this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
 	this.lightCam.updateProjectionMatrix();
 
-	this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
-	scene.add( this.lightCamHelper );
+	// this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
+	// scene.add( this.lightCamHelper );
 
 	// uniform -> lightMatrix
 	this.lightMatrix = new THREE.Matrix4();

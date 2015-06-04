@@ -98,9 +98,9 @@ var sceneSettings = {
 	cameraCtrl = new THREE.OrbitControls( camera, container );
 	// cameraCtrl.object.position.z = 1500;
 
-	camera.position.set( -291.93474410826076, 155.1518744204858, 356.4315289965522 );
-	camera.quaternion.set( -0.12386575316089882, -0.460916033447672, -0.06514800294534637, 0.876338650005208 );
-	cameraCtrl.center.set( 112.35093079553207, -27.356325183812746, 92.8032164315311 );
+	camera.position.set( -321.5847028300089, 215.28711637817776, 881.9719256352606 );
+	camera.quaternion.set( -0.12170374143462927, -0.340052864691943, 0.04443202001754455, 0.9314386960684689 );
+	cameraCtrl.center.set( 243.27711348462407, -17.799729328901254, 211.47633089038425 );
 
 	cameraCtrl.update();
 
@@ -578,7 +578,7 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 10.0 },
+			size           : { type: 'f' , value : 7.0 },
 			luminance      : { type: 'f' , value : 50.0 },
 			particleTexture: { type: 't' , value : TEXTURES.electric },
 			positionBuffer : { type: 't' , value : null },
@@ -626,7 +626,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = THREE.Math.randFloat( 50, 250 ); // initial particle life, todo: move to separate texture
+		data[ i + 3 ] = THREE.Math.randFloat( 0, 250 ); // initial particle life, todo: move to separate texture
 
 	}
 
@@ -652,8 +652,8 @@ ParticleSystem.prototype.init = function () {
 	this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
 	this.lightCam.updateProjectionMatrix();
 
-	this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
-	scene.add( this.lightCamHelper );
+	// this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
+	// scene.add( this.lightCamHelper );
 
 	// uniform -> lightMatrix
 	this.lightMatrix = new THREE.Matrix4();
@@ -768,7 +768,7 @@ function main() {
 	uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
 		timeMult : { type: 'f', value: 0.0 },
-		noiseFreq: { type: 'f', value: 0.9 },
+		noiseFreq: { type: 'f', value: 1.25 },
 		speed    : { type: 'f', value: 9.0 }
 	};
 
