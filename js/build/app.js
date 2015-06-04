@@ -46,7 +46,11 @@ shaderLoader.loadMultiple( SHADER_CONTAINER, {
 	velocity: 'shaders/velocity.frag',
 	position: 'shaders/position.frag',
 
-	sort: 'shaders/mergeSort.frag'
+	sort: 'shaders/mergeSort.frag',
+
+	opacityMapVert: 'shaders/opacityMap.vert',
+	opacityMapFrag: 'shaders/opacityMap.frag',
+
 
 } );
 
@@ -92,7 +96,7 @@ var sceneSettings = {
 	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
 	// camera orbit control
 	cameraCtrl = new THREE.OrbitControls( camera, container );
-	cameraCtrl.object.position.z = 1500;
+	cameraCtrl.object.position.z = 2000;
 	cameraCtrl.update();
 
 // ---- Renderer
@@ -116,7 +120,7 @@ var sceneSettings = {
 	gridHelper.position.y = -300;
 	scene.add( gridHelper );
 
-	var axisHelper = new THREE.AxisHelper( 1500 );
+	var axisHelper = new THREE.AxisHelper( 1000 );
 	scene.add( axisHelper );
 
 	function updateHelpers() {
@@ -126,19 +130,18 @@ var sceneSettings = {
 	updateHelpers();
 
 // ---- Lights
-	// back light
-	light = new THREE.DirectionalLight( 0xffffff, 0.8 );
-	light.position.set( 100, 230, -100 );
-	scene.add( light );
-
-	// hemi
-	light = new THREE.HemisphereLight( 0x00ffff, 0x29295e, 1 );
-	light.position.set( 370, 200, 20 );
-	scene.add( light );
-
-	// ambient
-	light = new THREE.AmbientLight( 0x111111 );
-	scene.add( light );
+	// top light
+		// renderer.shadowMapEnabled = true;
+		// light = new THREE.DirectionalLight( 0xffffff, 1.0 );
+		// light.position.set( 0, 500, 0 );
+		// light.castShadow = true;
+		// light.shadowCameraVisible = true;
+		// light.shadowCameraNear = 10;
+		// light.shadowCameraFar = 1000;
+		// light.shadowMapWidth = 512;
+		// light.shadowMapHeight = 512;
+		//
+		// scene.add( light );
 
 // Source: js/gui.js
 /* exported gui, gui_display, gui_settings, initGui, updateGuiDisplay */
@@ -163,7 +166,7 @@ function initGui() {
 		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 20.0, 0.01 ).name( 'Frequency' );
 		gui_settings.add( uniformsInput.speed, 'value', 0.0, 200.0, 0.01 ).name( 'Speed' );
 		gui_settings.add( psys.material.uniforms.size, 'value', 0.0, 100.0, 0.01 ).name( 'Size' );
-		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 50.0, 0.01 ).name( 'Luminance' );
+		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 100.0, 0.01 ).name( 'Luminance' );
 		gui_settings.add( sceneSettings, 'showFrameBuffer' ).name( 'Show Frame Buffer' );
 
 
@@ -265,9 +268,9 @@ FBOCompositor.prototype = {
 
 	},
 
-	addPass: function ( name, fragmentSahader, inputTargets ) {
+	addPass: function ( name, fragmentShader, inputTargets ) {
 
-		var pass = new FBOPass( name, this.passThruVertexShader, fragmentSahader, this.bufferSize );
+		var pass = new FBOPass( name, this.passThruVertexShader, fragmentShader, this.bufferSize );
 		pass.inputTargetList = inputTargets  || {};
 		this.passes.push( pass );
 		return pass;
@@ -323,7 +326,6 @@ FBOCompositor.prototype = {
 				// copy position buffer to sort buffer
 				this.renderInitialBuffer( this.getPass( 'positionPass' ).getRenderTarget(), currPass.name );
 
-
 				// sortPass
 				for ( var s = 0; s <= this.totalSortStep; s ++ ) {
 
@@ -368,11 +370,11 @@ FBOCompositor.prototype = {
 };
 
 
-function FBOPass( name, vertexShader, fragmentSahader, bufferSize ) {
+function FBOPass( name, vertexShader, fragmentShader, bufferSize ) {
 
 	this.name = name;
 	this.vertexShader = vertexShader;
-	this.fragmentSahader = fragmentSahader;
+	this.fragmentShader = fragmentShader;
 	this.bufferSize = bufferSize;
 
 	this.currentBuffer = 0;
@@ -397,7 +399,7 @@ function FBOPass( name, vertexShader, fragmentSahader, bufferSize ) {
 
 		uniforms: this.uniforms,
 		vertexShader: this.vertexShader,
-		fragmentShader: this.fragmentSahader
+		fragmentShader: this.fragmentShader
 
 	} );
 
@@ -534,16 +536,6 @@ function ParticleSystem( _bufferSize ) {
 
 	this.geom = new THREE.BufferGeometry();
 
-	this.numSlices = 32;
-	this.pCount = this.bufferSize * this.bufferSize;
-	this.pPerSlice = this.pCount / this.numSlices;
-	console.log( this.pCount, this.pPerSlice );
-	for( var i = 0; i < this.numSlices; i ++ ) {
-
-		this.geom.addDrawCall( 0, this.pPerSlice, i * this.pPerSlice );
-
-	}
-
 	this.position = new Float32Array( this.bufferSize * this.bufferSize * 3 );
 
 	var vertexHere = [];
@@ -554,6 +546,7 @@ function ParticleSystem( _bufferSize ) {
 		for ( c = 0; c < this.bufferSize; c++ ) {
 
 			vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, normalizedSpacing * r + normalizedHalfPixel, 0 ] );
+			// vertexHere.push( [ 1.0 - normalizedSpacing * c + normalizedHalfPixel, 1.0 - normalizedSpacing * r + normalizedHalfPixel, 0 ] );
 
 		}
 
@@ -580,20 +573,28 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f', value: 15.0 },
-			luminance      : { type: 'f', value: 13.0 },
-			particleTexture: { type: 't', value: TEXTURES.electric },
-			positionBuffer : { type: 't', value: null },
-			velocityBuffer : { type: 't', value: null }
+			size           : { type: 'f' , value : 3.0 },
+			luminance      : { type: 'f' , value : 50.0 },
+			particleTexture: { type: 't' , value : TEXTURES.electric },
+			positionBuffer : { type: 't' , value : null },
+			velocityBuffer : { type: 't' , value : null },
+			opacityMap     : { type: 't' , value : null },
+			lightMatrix    : { type: 'm4', value : null }
 		},
 
 		vertexShader: SHADER_CONTAINER.particleVert,
 		fragmentShader: SHADER_CONTAINER.particleFrag,
 
 		transparent: true,
-		// depthTest: false,
-		// depthWrite: false,
-		blending: THREE.AdditiveBlending
+		depthTest: false,
+		depthWrite: false,
+		// blending: THREE.AdditiveBlending,
+
+		////
+		blending: THREE.CustomBlending,
+		blendEquation: THREE.AddEquation,
+		blendSrc: THREE.SrcAlphaFactor,
+		blendDst: THREE.OneMinusSrcAlphaFactor,
 
 	} );
 
@@ -633,6 +634,124 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 
 };
 
+
+// opacity map stuff
+
+ParticleSystem.prototype.init = function () {
+
+	// cam
+	this.lightCam = new THREE.OrthographicCamera( -500, 500, 500, -500, 10, 1000 );
+	this.lightCam.position.set( 0, 500, 0 );
+	this.lightCam.rotateX( -Math.PI * 0.5 );
+	this.lightCam.updateMatrixWorld();
+	this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
+	this.lightCam.updateProjectionMatrix();
+
+	// this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
+	// scene.add( this.lightCamHelper );
+
+	// uniform -> lightMatrix
+	this.lightMatrix = new THREE.Matrix4();
+	this.lightMatrix.set(
+		0.5, 0.0, 0.0, 0.5,
+		0.0, 0.5, 0.0, 0.5,
+		0.0, 0.0, 0.5, 0.5,
+		0.0, 0.0, 0.0, 1.0
+	);
+	this.lightMatrix.multiply( this.lightCam.projectionMatrix );
+	this.lightMatrix.multiply( this.lightCam.matrixWorldInverse );
+
+	this.lightScene = new THREE.Scene();
+	this.lightScene.add( this.particleMesh );
+
+	var downSample = 1.0;
+	this.opacityMap = new THREE.WebGLRenderTarget( this.bufferSize*downSample, this.bufferSize*downSample, {
+
+		wrapS: THREE.ClampToEdgeWrapping,
+		wrapT: THREE.ClampToEdgeWrapping,
+		minFilter: THREE.NearestFilter,
+		magFilter: THREE.NearestFilter,
+		format: THREE.RGBAFormat,
+		type: THREE.FloatType,
+		stencilBuffer: false,
+		depthBuffer: false,
+
+	} );
+
+	this.numSlices = 256;
+	this.pCount = this.bufferSize * this.bufferSize;
+	this.pPerSlice = this.pCount / this.numSlices;
+	console.log( this.pCount, this.pPerSlice );
+
+	this.material.uniforms.lightMatrix.value = this.lightMatrix;
+	this.material.uniforms.opacityMap.value = this.opacityMap;
+
+	this.opacityMaterial = new THREE.ShaderMaterial( {
+
+		attributes: {
+			here: { type: 'v3', value: null }
+		},
+
+		uniforms: {
+			size           : { type: 'f' , value : 3.0 },
+			luminance      : { type: 'f' , value : 50.0 },
+			particleTexture: { type: 't' , value : TEXTURES.electric },
+			positionBuffer : { type: 't' , value : null },
+		},
+
+		vertexShader: SHADER_CONTAINER.opacityMapVert,
+		fragmentShader: SHADER_CONTAINER.opacityMapFrag,
+
+		transparent: true,
+		depthTest: false,
+		depthWrite: false,
+		// blending: THREE.AdditiveBlending,
+
+		////
+		blending: THREE.CustomBlending,
+		blendEquation: THREE.AddEquation,
+		blendSrc: THREE.SrcAlphaFactor,
+		blendDst: THREE.OneMinusSrcAlphaFactor,
+
+	} );
+
+};
+
+ParticleSystem.prototype.render = function ( renderer ) {
+
+	// clear opacityMap buffer
+	renderer.setClearColor( 0.0, 1.0 );
+	renderer.clearTarget( this.opacityMap, true, true, true );
+	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
+
+
+	// set position buffer
+	for ( var i = 0; i < this.numSlices; i ++ ) {
+
+		// set geometry draw calls
+		this.geom.drawcalls[0] = { start: 0, count: this.pPerSlice, index: i * this.pPerSlice };
+
+		// render to screen
+
+		this.particleMesh.material = this.material;
+
+		scene.add( this.particleMesh );
+		renderer.render( scene, camera );
+
+
+		// render opacityMap
+
+		this.opacityMaterial.uniforms = this.material.uniforms;
+
+		this.particleMesh.material = this.opacityMaterial;
+
+		this.lightScene.add( this.particleMesh );
+		renderer.render( this.lightScene, this.lightCam, this.opacityMap );
+
+	}
+
+};
+
 // Source: js/main.js
 /* exported main */
 
@@ -650,11 +769,11 @@ function main() {
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
 
-
 	sortUniforms = {
 		pass: { type: 'f', value: -1 },
 		stage: { type: 'f', value: -1 },
-		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) }
+		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) },
+		halfAngle: { type: 'v3', value: new THREE.Vector3() }
 	};
 	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
 	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
@@ -665,6 +784,8 @@ function main() {
 	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
 
 	psys = new ParticleSystem( numParSq );
+	psys.init();
+
 	var initialPositionDataTexture = psys.generatePositionTexture();
 	FBOC.renderInitialBuffer( initialPositionDataTexture, 'positionPass' );
 
@@ -683,7 +804,7 @@ function main() {
 		} )
 	);
 
-	scene.add( bgMesh );
+	// scene.add( bgMesh );
 
 
 
@@ -700,8 +821,19 @@ function update() {
 
 	uniformsInput.time.value = clock.getElapsedTime();
 
+
 	sortUniforms.lookAt.value.set( 0, 0, 1 );
 	sortUniforms.lookAt.value.applyQuaternion( camera.quaternion );
+	sortUniforms.lookAt.value.normalize();
+
+	sortUniforms.halfAngle.value.set( 0, 0, -1 );
+	sortUniforms.halfAngle.value.applyQuaternion( camera.quaternion );
+	// flip?
+	sortUniforms.halfAngle.value.multiplyScalar( -1 );
+
+	sortUniforms.halfAngle.value.normalize();
+	sortUniforms.halfAngle.value.y += 1; // light vector
+	sortUniforms.halfAngle.value.normalize();
 
 
 	FBOC.step();
@@ -711,10 +843,16 @@ function update() {
 	// sortPass = sorted position
 	psys.setPositionBuffer( FBOC.getPass( 'sortPass' ).getRenderTarget() );
 
+	psys.opacityMaterial.uniforms.positionBuffer.value = FBOC.getPass( 'sortPass' ).getRenderTarget() ;
+
+
+	// renderer.render( psys.lightScene, psys.lightCam, psys.opacityMap );
+
 	// !todo: fix bug particle flickering because velocity buffer not sync with sorted position buffer
-	psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
+	// psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
 
 	// !todo: when rotate mesh, sorted axis is wrong
+
 	// psys.particleMesh.rotateY( clock.getDelta() );
 
 	updateGuiDisplay();
@@ -726,16 +864,23 @@ function update() {
 function run() {
 
 	requestAnimationFrame( run );
+
 	renderer.clear();
 
+	// !todo: fix particle stop sorting when pause and changing camera angle
 	if ( !sceneSettings.pause ) {
 		update();
 	}
 
-	renderer.render( scene, camera );
+	// renderer.render( scene, camera );
+
+	psys.render( renderer, scene, camera );
+
+
 
 	if ( sceneSettings.showFrameBuffer ) {
-		hud.setInputTexture( FBOC.getPass( 'sortPass' ).getRenderTarget() );
+		// hud.setInputTexture( FBOC.getPass( 'sortPass' ).getRenderTarget() );
+		hud.setInputTexture( psys.opacityMap );
 		hud.render();
 	}
 

@@ -3,7 +3,8 @@ uniform vec2 resolution;
 uniform sampler2D mirrorBuffer;
 uniform float pass;
 uniform float stage;
-uniform vec3 lookAt;
+// uniform vec3 lookAt;
+uniform vec3 halfAngle;
 
 bool selectTex( vec2 uv, vec2 tx ) {
 
@@ -44,8 +45,8 @@ void main() {
 	// float selfCompareCoord = self.z;
 	// float partCompareCoord = partner.z;
 
-	float selfProjectedLen = dot( self.xyz, lookAt );
-	float partProjectedLen = dot( partner.xyz, lookAt );
+	float selfProjectedLen = dot( self.xyz, halfAngle );
+	float partProjectedLen = dot( partner.xyz, halfAngle );
 
 	vec4 color = (selfProjectedLen * compare < partProjectedLen * compare) ? self : partner;
 

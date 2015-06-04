@@ -14,11 +14,11 @@ function main() {
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
 
-
 	sortUniforms = {
 		pass: { type: 'f', value: -1 },
 		stage: { type: 'f', value: -1 },
-		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) }
+		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) },
+		halfAngle: { type: 'v3', value: new THREE.Vector3() }
 	};
 	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
 	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
@@ -29,6 +29,8 @@ function main() {
 	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
 
 	psys = new ParticleSystem( numParSq );
+	psys.init();
+
 	var initialPositionDataTexture = psys.generatePositionTexture();
 	FBOC.renderInitialBuffer( initialPositionDataTexture, 'positionPass' );
 
@@ -47,7 +49,7 @@ function main() {
 		} )
 	);
 
-	scene.add( bgMesh );
+	// scene.add( bgMesh );
 
 
 

@@ -31,7 +31,7 @@ var sceneSettings = {
 	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
 	// camera orbit control
 	cameraCtrl = new THREE.OrbitControls( camera, container );
-	cameraCtrl.object.position.z = 1500;
+	cameraCtrl.object.position.z = 2000;
 	cameraCtrl.update();
 
 // ---- Renderer
@@ -55,7 +55,7 @@ var sceneSettings = {
 	gridHelper.position.y = -300;
 	scene.add( gridHelper );
 
-	var axisHelper = new THREE.AxisHelper( 1500 );
+	var axisHelper = new THREE.AxisHelper( 1000 );
 	scene.add( axisHelper );
 
 	function updateHelpers() {
@@ -65,16 +65,15 @@ var sceneSettings = {
 	updateHelpers();
 
 // ---- Lights
-	// back light
-	light = new THREE.DirectionalLight( 0xffffff, 0.8 );
-	light.position.set( 100, 230, -100 );
-	scene.add( light );
-
-	// hemi
-	light = new THREE.HemisphereLight( 0x00ffff, 0x29295e, 1 );
-	light.position.set( 370, 200, 20 );
-	scene.add( light );
-
-	// ambient
-	light = new THREE.AmbientLight( 0x111111 );
-	scene.add( light );
+	// top light
+		// renderer.shadowMapEnabled = true;
+		// light = new THREE.DirectionalLight( 0xffffff, 1.0 );
+		// light.position.set( 0, 500, 0 );
+		// light.castShadow = true;
+		// light.shadowCameraVisible = true;
+		// light.shadowCameraNear = 10;
+		// light.shadowCameraFar = 1000;
+		// light.shadowMapWidth = 512;
+		// light.shadowMapHeight = 512;
+		//
+		// scene.add( light );

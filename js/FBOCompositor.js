@@ -71,9 +71,9 @@ FBOCompositor.prototype = {
 
 	},
 
-	addPass: function ( name, fragmentSahader, inputTargets ) {
+	addPass: function ( name, fragmentShader, inputTargets ) {
 
-		var pass = new FBOPass( name, this.passThruVertexShader, fragmentSahader, this.bufferSize );
+		var pass = new FBOPass( name, this.passThruVertexShader, fragmentShader, this.bufferSize );
 		pass.inputTargetList = inputTargets  || {};
 		this.passes.push( pass );
 		return pass;
@@ -129,7 +129,6 @@ FBOCompositor.prototype = {
 				// copy position buffer to sort buffer
 				this.renderInitialBuffer( this.getPass( 'positionPass' ).getRenderTarget(), currPass.name );
 
-
 				// sortPass
 				for ( var s = 0; s <= this.totalSortStep; s ++ ) {
 
@@ -174,11 +173,11 @@ FBOCompositor.prototype = {
 };
 
 
-function FBOPass( name, vertexShader, fragmentSahader, bufferSize ) {
+function FBOPass( name, vertexShader, fragmentShader, bufferSize ) {
 
 	this.name = name;
 	this.vertexShader = vertexShader;
-	this.fragmentSahader = fragmentSahader;
+	this.fragmentShader = fragmentShader;
 	this.bufferSize = bufferSize;
 
 	this.currentBuffer = 0;
@@ -203,7 +202,7 @@ function FBOPass( name, vertexShader, fragmentSahader, bufferSize ) {
 
 		uniforms: this.uniforms,
 		vertexShader: this.vertexShader,
-		fragmentShader: this.fragmentSahader
+		fragmentShader: this.fragmentShader
 
 	} );
 

@@ -6,6 +6,7 @@ varying vec3 vVel;
 varying float vLife;
 varying float vDepth;
 
+varying float vOpacity;
 
 float square(float s) { return s * s; }
 vec3 square(vec3 s) { return s * s; }
@@ -35,27 +36,11 @@ float easeOutCirc( float t ) {
 
 void main() {
 
-	vec4 pColor = texture2D( particleTexture, gl_PointCoord ).rgba;
+	float distanceFromCenter = distance( gl_PointCoord.xy, vec2( 0.5, 0.5 ) );
+	if ( distanceFromCenter > 0.5 ) discard;
 
-	float nVel = length( vVel ) * 0.09;
-
-	vec3 colA = vec3( 0.0, 0.0, 0.0 );
-	vec3 colB = vec3( 0.02, 0.08, 0.9 );	// vec3 colB = vec3( 0.02, 0.04, 0.1 );
-
-	vec3 luminanceCoef = vec3( 0.299, 0.587, 0.114 );
-	float textureLuminance = clamp( dot( pColor.rgb, luminanceCoef ), 0.0, 1.0 ) * 2.0;
-
-	pColor.rgb = mix( colA, colB, textureLuminance );
-
-	pColor.rgb *= luminance;
-	pColor.a *= 0.1 * vLife/80.0;
-
-	// !todo: fix bug velocity buffer not sync with sorted position buffer
-	// pColor.rgb = mix( colB, colA, nVel );
-
-	// pColor.rgb = pow( abs( pColor.rgb ), vec3( 0.8 ) ) * luminance; //* vLife/200.0;
-
-	// vec4 depth = vec4( vec3( 1.0 - vDepth * 0.0005 ) 1.0 ); // particle depth map
+	vec4 pColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+	pColor.rgb *= vec3( 1.0 - vOpacity );
 
 	gl_FragColor = pColor.rgba;
 

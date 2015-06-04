@@ -20,7 +20,7 @@ function initGui() {
 		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 20.0, 0.01 ).name( 'Frequency' );
 		gui_settings.add( uniformsInput.speed, 'value', 0.0, 200.0, 0.01 ).name( 'Speed' );
 		gui_settings.add( psys.material.uniforms.size, 'value', 0.0, 100.0, 0.01 ).name( 'Size' );
-		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 50.0, 0.01 ).name( 'Luminance' );
+		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 100.0, 0.01 ).name( 'Luminance' );
 		gui_settings.add( sceneSettings, 'showFrameBuffer' ).name( 'Show Frame Buffer' );
 
 

@@ -2,12 +2,14 @@
 uniform float size;
 uniform sampler2D positionBuffer;
 uniform sampler2D velocityBuffer;
+uniform sampler2D opacityMap;
+
+uniform mat4 lightMatrix;
 
 attribute vec3 here;
 
-varying vec3 vVel;
 varying float vLife;
-varying float vDepth;
+varying float vOpacity;
 
 
 float rand( vec2 p ){
@@ -16,18 +18,15 @@ float rand( vec2 p ){
 
 void main() {
 
-   vVel = texture2D( velocityBuffer, here.xy ).rgb;
-
    vLife = texture2D( positionBuffer, here.xy ).a;
 
 	vec3 newPosition = texture2D( positionBuffer, here.xy ).rgb;
 
-	vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+   vec2 opacityTexCoord = vec2( lightMatrix * vec4( newPosition, 1.0 ) );  // use newPosition not position
+   vOpacity = texture2D( opacityMap, opacityTexCoord ).a;
 
-	gl_PointSize = size * ( 350.0 / length( mvPosition.xyz ) );  // size attenuation
+	gl_PointSize = size;
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 
-	gl_Position = projectionMatrix * mvPosition;
-
-   vDepth = gl_Position.z;
 
 }
