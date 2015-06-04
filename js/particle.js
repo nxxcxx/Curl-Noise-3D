@@ -42,7 +42,7 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 3.0 },
+			size           : { type: 'f' , value : 10.0 },
 			luminance      : { type: 'f' , value : 50.0 },
 			particleTexture: { type: 't' , value : TEXTURES.electric },
 			positionBuffer : { type: 't' , value : null },
@@ -60,10 +60,10 @@ function ParticleSystem( _bufferSize ) {
 		// blending: THREE.AdditiveBlending,
 
 		////
-		blending: THREE.CustomBlending,
-		blendEquation: THREE.AddEquation,
-		blendSrc: THREE.SrcAlphaFactor,
-		blendDst: THREE.OneMinusSrcAlphaFactor,
+		// blending: THREE.CustomBlending,
+		// blendEquation: THREE.AddEquation,
+		// blendSrc: THREE.SrcAlphaFactor,
+		// blendDst: THREE.OneMinusSrcAlphaFactor,
 
 	} );
 
@@ -110,14 +110,14 @@ ParticleSystem.prototype.init = function () {
 
 	// cam
 	this.lightCam = new THREE.OrthographicCamera( -500, 500, 500, -500, 10, 1000 );
-	this.lightCam.position.set( 0, 500, 0 );
+	this.lightCam.position.set( 400, 500, 0 );
 	this.lightCam.rotateX( -Math.PI * 0.5 );
 	this.lightCam.updateMatrixWorld();
 	this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
 	this.lightCam.updateProjectionMatrix();
 
-	// this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
-	// scene.add( this.lightCamHelper );
+	this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
+	scene.add( this.lightCamHelper );
 
 	// uniform -> lightMatrix
 	this.lightMatrix = new THREE.Matrix4();
@@ -147,7 +147,7 @@ ParticleSystem.prototype.init = function () {
 
 	} );
 
-	this.numSlices = 256;
+	this.numSlices = 64;
 	this.pCount = this.bufferSize * this.bufferSize;
 	this.pPerSlice = this.pCount / this.numSlices;
 	console.log( this.pCount, this.pPerSlice );
@@ -162,7 +162,7 @@ ParticleSystem.prototype.init = function () {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 3.0 },
+			size           : { type: 'f' , value : 7.0 },
 			luminance      : { type: 'f' , value : 50.0 },
 			particleTexture: { type: 't' , value : TEXTURES.electric },
 			positionBuffer : { type: 't' , value : null },
@@ -190,7 +190,7 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 	// clear opacityMap buffer
 	renderer.setClearColor( 0.0, 1.0 );
-	renderer.clearTarget( this.opacityMap, true, true, true );
+	renderer.clearTarget( this.opacityMap );
 	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
 
 
@@ -218,5 +218,8 @@ ParticleSystem.prototype.render = function ( renderer ) {
 		renderer.render( this.lightScene, this.lightCam, this.opacityMap );
 
 	}
+
+	// don't know why need to reset render target??
+	renderer.setRenderTarget( this.dummyRenderTarget );
 
 };

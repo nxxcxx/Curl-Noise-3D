@@ -49,6 +49,7 @@ function run() {
 
 	requestAnimationFrame( run );
 
+	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
 	renderer.clear();
 
 	// !todo: fix particle stop sorting when pause and changing camera angle
@@ -67,7 +68,7 @@ function run() {
 		hud.setInputTexture( psys.opacityMap );
 		hud.render();
 	}
-
+	
 	stats.update();
 
 }

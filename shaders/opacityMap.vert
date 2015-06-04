@@ -13,7 +13,7 @@ void main() {
 
 	vec3 newPosition = texture2D( positionBuffer, here.xy ).rgb;
 
-   gl_PointSize = size;
+   gl_PointSize = size * ( vLife * 0.005 );
 
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 

@@ -4,9 +4,9 @@ function main() {
 
 	uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
-		timeMult : { type: 'f', value: 0.15 },
-		noiseFreq: { type: 'f', value: 1.3 },
-		speed    : { type: 'f', value: 40.0 }
+		timeMult : { type: 'f', value: 0.0 },
+		noiseFreq: { type: 'f', value: 0.9 },
+		speed    : { type: 'f', value: 9.0 }
 	};
 
 	var numParSq = 256;

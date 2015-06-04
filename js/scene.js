@@ -15,7 +15,7 @@ var clock = new THREE.Clock();
 // ---- Settings
 var sceneSettings = {
 
-	bgColor: 0x202020,
+	bgColor: 0x757575,
 	enableGridHelper: false,
 	enableAxisHelper: true,
 	pause: false,
@@ -31,7 +31,12 @@ var sceneSettings = {
 	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
 	// camera orbit control
 	cameraCtrl = new THREE.OrbitControls( camera, container );
-	cameraCtrl.object.position.z = 2000;
+	// cameraCtrl.object.position.z = 1500;
+
+	camera.position.set( -291.93474410826076, 155.1518744204858, 356.4315289965522 );
+	camera.quaternion.set( -0.12386575316089882, -0.460916033447672, -0.06514800294534637, 0.876338650005208 );
+	cameraCtrl.center.set( 112.35093079553207, -27.356325183812746, 92.8032164315311 );
+
 	cameraCtrl.update();
 
 // ---- Renderer

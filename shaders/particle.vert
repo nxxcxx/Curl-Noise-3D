@@ -25,7 +25,7 @@ void main() {
    vec2 opacityTexCoord = vec2( lightMatrix * vec4( newPosition, 1.0 ) );  // use newPosition not position
    vOpacity = texture2D( opacityMap, opacityTexCoord ).a;
 
-	gl_PointSize = size;
+	gl_PointSize = size * ( vLife * 0.005 );
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 
 

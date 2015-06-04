@@ -31,17 +31,20 @@ float easeOutCirc( float t ) {
 }
 
 // vec3 luminanceCoef = vec3( 0.299, 0.587, 0.114 );
-// float textureLuminance = clamp( dot( pColor.rgb, luminanceCoef ), 0.0, 1.0 );
-// pColor.rgb = heatmapGradient( easeOutQuint( nVel ) ) * luminance;
+// float textureLuminance = clamp( dot( color.rgb, luminanceCoef ), 0.0, 1.0 );
+// color.rgb = heatmapGradient( easeOutQuint( nVel ) ) * luminance;
 
 void main() {
 
 	float distanceFromCenter = distance( gl_PointCoord.xy, vec2( 0.5, 0.5 ) );
 	if ( distanceFromCenter > 0.5 ) discard;
 
-	vec4 pColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-	pColor.rgb *= vec3( 1.0 - vOpacity );
+	vec4 color = vec4( 1.0, 0.0, 0.0, 1.0 );
+	float alphaScale = 1.0;
+	float alpha = ( 1.0 - vOpacity ) * alphaScale;
+	color.rgb *= alpha;
+	color.a = 1.0 * ( vLife * 0.0025 );
 
-	gl_FragColor = pColor.rgba;
+	gl_FragColor = color.rgba;
 
 }

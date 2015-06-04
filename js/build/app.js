@@ -80,7 +80,7 @@ var clock = new THREE.Clock();
 // ---- Settings
 var sceneSettings = {
 
-	bgColor: 0x202020,
+	bgColor: 0x757575,
 	enableGridHelper: false,
 	enableAxisHelper: true,
 	pause: false,
@@ -96,7 +96,12 @@ var sceneSettings = {
 	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
 	// camera orbit control
 	cameraCtrl = new THREE.OrbitControls( camera, container );
-	cameraCtrl.object.position.z = 2000;
+	// cameraCtrl.object.position.z = 1500;
+
+	camera.position.set( -291.93474410826076, 155.1518744204858, 356.4315289965522 );
+	camera.quaternion.set( -0.12386575316089882, -0.460916033447672, -0.06514800294534637, 0.876338650005208 );
+	cameraCtrl.center.set( 112.35093079553207, -27.356325183812746, 92.8032164315311 );
+
 	cameraCtrl.update();
 
 // ---- Renderer
@@ -165,7 +170,7 @@ function initGui() {
 		gui_settings.add( uniformsInput.timeMult, 'value', 0.0, 0.5, 0.01 ).name( 'Time Multiplier' );
 		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 20.0, 0.01 ).name( 'Frequency' );
 		gui_settings.add( uniformsInput.speed, 'value', 0.0, 200.0, 0.01 ).name( 'Speed' );
-		gui_settings.add( psys.material.uniforms.size, 'value', 0.0, 100.0, 0.01 ).name( 'Size' );
+		gui_settings.add( psys.material.uniforms.size, 'value', 1.0, 20.0, 0.01 ).name( 'Size' );
 		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 100.0, 0.01 ).name( 'Luminance' );
 		gui_settings.add( sceneSettings, 'showFrameBuffer' ).name( 'Show Frame Buffer' );
 
@@ -573,7 +578,7 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 3.0 },
+			size           : { type: 'f' , value : 10.0 },
 			luminance      : { type: 'f' , value : 50.0 },
 			particleTexture: { type: 't' , value : TEXTURES.electric },
 			positionBuffer : { type: 't' , value : null },
@@ -591,10 +596,10 @@ function ParticleSystem( _bufferSize ) {
 		// blending: THREE.AdditiveBlending,
 
 		////
-		blending: THREE.CustomBlending,
-		blendEquation: THREE.AddEquation,
-		blendSrc: THREE.SrcAlphaFactor,
-		blendDst: THREE.OneMinusSrcAlphaFactor,
+		// blending: THREE.CustomBlending,
+		// blendEquation: THREE.AddEquation,
+		// blendSrc: THREE.SrcAlphaFactor,
+		// blendDst: THREE.OneMinusSrcAlphaFactor,
 
 	} );
 
@@ -641,14 +646,14 @@ ParticleSystem.prototype.init = function () {
 
 	// cam
 	this.lightCam = new THREE.OrthographicCamera( -500, 500, 500, -500, 10, 1000 );
-	this.lightCam.position.set( 0, 500, 0 );
+	this.lightCam.position.set( 400, 500, 0 );
 	this.lightCam.rotateX( -Math.PI * 0.5 );
 	this.lightCam.updateMatrixWorld();
 	this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
 	this.lightCam.updateProjectionMatrix();
 
-	// this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
-	// scene.add( this.lightCamHelper );
+	this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
+	scene.add( this.lightCamHelper );
 
 	// uniform -> lightMatrix
 	this.lightMatrix = new THREE.Matrix4();
@@ -678,7 +683,7 @@ ParticleSystem.prototype.init = function () {
 
 	} );
 
-	this.numSlices = 256;
+	this.numSlices = 64;
 	this.pCount = this.bufferSize * this.bufferSize;
 	this.pPerSlice = this.pCount / this.numSlices;
 	console.log( this.pCount, this.pPerSlice );
@@ -693,7 +698,7 @@ ParticleSystem.prototype.init = function () {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 3.0 },
+			size           : { type: 'f' , value : 7.0 },
 			luminance      : { type: 'f' , value : 50.0 },
 			particleTexture: { type: 't' , value : TEXTURES.electric },
 			positionBuffer : { type: 't' , value : null },
@@ -721,7 +726,7 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 	// clear opacityMap buffer
 	renderer.setClearColor( 0.0, 1.0 );
-	renderer.clearTarget( this.opacityMap, true, true, true );
+	renderer.clearTarget( this.opacityMap );
 	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
 
 
@@ -750,6 +755,9 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 	}
 
+	// don't know why need to reset render target??
+	renderer.setRenderTarget( this.dummyRenderTarget );
+
 };
 
 // Source: js/main.js
@@ -759,9 +767,9 @@ function main() {
 
 	uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
-		timeMult : { type: 'f', value: 0.15 },
-		noiseFreq: { type: 'f', value: 1.3 },
-		speed    : { type: 'f', value: 40.0 }
+		timeMult : { type: 'f', value: 0.0 },
+		noiseFreq: { type: 'f', value: 0.9 },
+		speed    : { type: 'f', value: 9.0 }
 	};
 
 	var numParSq = 256;
@@ -865,6 +873,7 @@ function run() {
 
 	requestAnimationFrame( run );
 
+	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
 	renderer.clear();
 
 	// !todo: fix particle stop sorting when pause and changing camera angle
@@ -883,7 +892,7 @@ function run() {
 		hud.setInputTexture( psys.opacityMap );
 		hud.render();
 	}
-
+	
 	stats.update();
 
 }
