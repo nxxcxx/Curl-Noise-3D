@@ -1,12 +1,13 @@
 
 uniform sampler2D particleTexture;
 uniform float luminance;
+uniform float sortOrder;
 
 varying vec3 vVel;
 varying float vLife;
 varying float vDepth;
-
 varying float vOpacity;
+
 
 float square(float s) { return s * s; }
 vec3 square(vec3 s) { return s * s; }
@@ -41,7 +42,9 @@ void main() {
 
 	vec4 color = vec4( 1.0, 0.0, 0.0, 1.0 );
 	float alphaScale = 1.0;
+
 	float alpha = ( 1.0 - vOpacity ) * alphaScale;
+
 	color.rgb *= alpha;
 	color.a = 1.0 * ( vLife * 0.0025 );
 

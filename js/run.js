@@ -6,18 +6,31 @@ function update() {
 	uniformsInput.time.value = clock.getElapsedTime();
 
 
-	sortUniforms.lookAt.value.set( 0, 0, 1 );
-	sortUniforms.lookAt.value.applyQuaternion( camera.quaternion );
-	sortUniforms.lookAt.value.normalize();
+	var eye = new THREE.Vector3( 0, 0, 1 );
+	eye.applyQuaternion( camera.quaternion );
 
-	sortUniforms.halfAngle.value.set( 0, 0, -1 );
-	sortUniforms.halfAngle.value.applyQuaternion( camera.quaternion );
-	// flip?
-	sortUniforms.halfAngle.value.multiplyScalar( -1 );
+	var light = new THREE.Vector3( 0, -1, 0 );
 
-	sortUniforms.halfAngle.value.normalize();
-	sortUniforms.halfAngle.value.y += 1; // light vector
-	sortUniforms.halfAngle.value.normalize();
+	var hf = new THREE.Vector3();
+
+	// if ( eye.dot( light ) < 0.0 ) {
+		hf.subVectors( eye, light );
+		sortUniforms.sortOrder.value = 1;
+		psys.material.uniforms.sortOrder.value = -1;
+	// } else {
+	// 	eye.multiplyScalar( -1 );
+	// 	hf.subVectors( eye, light );
+	// 	sortUniforms.sortOrder.value = -1;
+	// 	psys.material.uniforms.sortOrder.value = 1;
+	// }
+
+
+	sortUniforms.halfAngle.value = hf.normalize();
+
+
+
+
+
 
 
 	FBOC.step();
@@ -68,7 +81,7 @@ function run() {
 		hud.setInputTexture( psys.opacityMap );
 		hud.render();
 	}
-	
+
 	stats.update();
 
 }

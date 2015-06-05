@@ -42,13 +42,14 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 7.0 },
-			luminance      : { type: 'f' , value : 50.0 },
-			particleTexture: { type: 't' , value : TEXTURES.electric },
-			positionBuffer : { type: 't' , value : null },
-			velocityBuffer : { type: 't' , value : null },
-			opacityMap     : { type: 't' , value : null },
-			lightMatrix    : { type: 'm4', value : null }
+			size           : { type: 'f' , value: 5.0 },
+			luminance      : { type: 'f' , value: 50.0 },
+			particleTexture: { type: 't' , value: TEXTURES.electric },
+			positionBuffer : { type: 't' , value: null },
+			velocityBuffer : { type: 't' , value: null },
+			opacityMap     : { type: 't' , value: null },
+			lightMatrix    : { type: 'm4', value: null },
+			sortOrder      : { type: 'f' , value: -1 }
 		},
 
 		vertexShader: SHADER_CONTAINER.particleVert,
@@ -90,7 +91,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = THREE.Math.randFloat( 0, 250 ); // initial particle life, todo: move to separate texture
+		data[ i + 3 ] = THREE.Math.randFloat( 0, 50 ); // initial particle life, todo: move to separate texture
 
 	}
 

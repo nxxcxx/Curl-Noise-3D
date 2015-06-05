@@ -254,7 +254,7 @@ void main()	{
 	pos /= resolution.xxx; // pos = particle current position
 
 	vec3 field = curl( pos ) * 0.01 * speed;
-	field.x += 0.8;
+	field.x += 0.65;
 
 	gl_FragColor = vec4( field.xyz, 0.0 );
 

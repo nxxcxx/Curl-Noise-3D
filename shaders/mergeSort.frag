@@ -5,6 +5,7 @@ uniform float pass;
 uniform float stage;
 // uniform vec3 lookAt;
 uniform vec3 halfAngle;
+uniform float sortOrder;
 
 bool selectTex( vec2 uv, vec2 tx ) {
 
@@ -48,7 +49,7 @@ void main() {
 	float selfProjectedLen = dot( self.xyz, halfAngle );
 	float partProjectedLen = dot( partner.xyz, halfAngle );
 
-	vec4 color = (selfProjectedLen * compare < partProjectedLen * compare) ? self : partner;
+	vec4 color = (selfProjectedLen * compare * sortOrder < partProjectedLen * compare * sortOrder) ? self : partner;
 
 	gl_FragColor = color;
 

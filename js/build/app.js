@@ -578,13 +578,14 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 7.0 },
-			luminance      : { type: 'f' , value : 50.0 },
-			particleTexture: { type: 't' , value : TEXTURES.electric },
-			positionBuffer : { type: 't' , value : null },
-			velocityBuffer : { type: 't' , value : null },
-			opacityMap     : { type: 't' , value : null },
-			lightMatrix    : { type: 'm4', value : null }
+			size           : { type: 'f' , value: 5.0 },
+			luminance      : { type: 'f' , value: 50.0 },
+			particleTexture: { type: 't' , value: TEXTURES.electric },
+			positionBuffer : { type: 't' , value: null },
+			velocityBuffer : { type: 't' , value: null },
+			opacityMap     : { type: 't' , value: null },
+			lightMatrix    : { type: 'm4', value: null },
+			sortOrder      : { type: 'f' , value: -1 }
 		},
 
 		vertexShader: SHADER_CONTAINER.particleVert,
@@ -626,7 +627,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
 		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = THREE.Math.randFloat( 0, 250 ); // initial particle life, todo: move to separate texture
+		data[ i + 3 ] = THREE.Math.randFloat( 0, 50 ); // initial particle life, todo: move to separate texture
 
 	}
 
@@ -767,7 +768,7 @@ function main() {
 
 	uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
-		timeMult : { type: 'f', value: 0.0 },
+		timeMult : { type: 'f', value: 0.01 },
 		noiseFreq: { type: 'f', value: 1.25 },
 		speed    : { type: 'f', value: 9.0 }
 	};
@@ -781,7 +782,8 @@ function main() {
 		pass: { type: 'f', value: -1 },
 		stage: { type: 'f', value: -1 },
 		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) },
-		halfAngle: { type: 'v3', value: new THREE.Vector3() }
+		halfAngle: { type: 'v3', value: new THREE.Vector3() },
+		sortOrder: { type: 'f', value: 1 }
 	};
 	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
 	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
@@ -830,18 +832,31 @@ function update() {
 	uniformsInput.time.value = clock.getElapsedTime();
 
 
-	sortUniforms.lookAt.value.set( 0, 0, 1 );
-	sortUniforms.lookAt.value.applyQuaternion( camera.quaternion );
-	sortUniforms.lookAt.value.normalize();
+	var eye = new THREE.Vector3( 0, 0, 1 );
+	eye.applyQuaternion( camera.quaternion );
 
-	sortUniforms.halfAngle.value.set( 0, 0, -1 );
-	sortUniforms.halfAngle.value.applyQuaternion( camera.quaternion );
-	// flip?
-	sortUniforms.halfAngle.value.multiplyScalar( -1 );
+	var light = new THREE.Vector3( 0, -1, 0 );
 
-	sortUniforms.halfAngle.value.normalize();
-	sortUniforms.halfAngle.value.y += 1; // light vector
-	sortUniforms.halfAngle.value.normalize();
+	var hf = new THREE.Vector3();
+
+	// if ( eye.dot( light ) < 0.0 ) {
+		hf.subVectors( eye, light );
+		sortUniforms.sortOrder.value = 1;
+		psys.material.uniforms.sortOrder.value = -1;
+	// } else {
+	// 	eye.multiplyScalar( -1 );
+	// 	hf.subVectors( eye, light );
+	// 	sortUniforms.sortOrder.value = -1;
+	// 	psys.material.uniforms.sortOrder.value = 1;
+	// }
+
+
+	sortUniforms.halfAngle.value = hf.normalize();
+
+
+
+
+
 
 
 	FBOC.step();
@@ -892,7 +907,7 @@ function run() {
 		hud.setInputTexture( psys.opacityMap );
 		hud.render();
 	}
-	
+
 	stats.update();
 
 }
