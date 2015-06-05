@@ -14,8 +14,8 @@ function ParticleSystem( _bufferSize ) {
 
 		for ( c = 0; c < this.bufferSize; c++ ) {
 
-			vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, normalizedSpacing * r + normalizedHalfPixel, 0 ] );
-			// vertexHere.push( [ 1.0 - normalizedSpacing * c + normalizedHalfPixel, 1.0 - normalizedSpacing * r + normalizedHalfPixel, 0 ] );
+			// vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, normalizedSpacing * r + normalizedHalfPixel, 0 ] );
+			vertexHere.push( [ 1.0 - normalizedSpacing * c + normalizedHalfPixel, 1.0 - normalizedSpacing * r + normalizedHalfPixel, 0 ] );
 
 		}
 
@@ -58,13 +58,18 @@ function ParticleSystem( _bufferSize ) {
 		transparent: true,
 		depthTest: false,
 		depthWrite: false,
-		// blending: THREE.AdditiveBlending,
 
 		////
-		// blending: THREE.CustomBlending,
-		// blendEquation: THREE.AddEquation,
-		// blendSrc: THREE.SrcAlphaFactor,
-		// blendDst: THREE.OneMinusSrcAlphaFactor,
+		blending: THREE.CustomBlending,
+		blendEquation: THREE.AddEquation,
+
+		// front to back
+		blendSrc: THREE.OneFactor,
+		blendDst: THREE.OneMinusSrcAlphaFactor,
+
+		// back to front
+		// blendSrc: THREE.OneMinusDstAlphaFactor,
+		// blendDst: THREE.OneFactor,
 
 	} );
 
@@ -134,7 +139,7 @@ ParticleSystem.prototype.init = function () {
 	this.lightScene = new THREE.Scene();
 	this.lightScene.add( this.particleMesh );
 
-	var downSample = 1.0;
+	var downSample = 0.5;
 	this.opacityMap = new THREE.WebGLRenderTarget( this.bufferSize*downSample, this.bufferSize*downSample, {
 
 		wrapS: THREE.ClampToEdgeWrapping,
@@ -175,13 +180,13 @@ ParticleSystem.prototype.init = function () {
 		transparent: true,
 		depthTest: false,
 		depthWrite: false,
-		// blending: THREE.AdditiveBlending,
 
 		////
 		blending: THREE.CustomBlending,
 		blendEquation: THREE.AddEquation,
-		blendSrc: THREE.SrcAlphaFactor,
-		blendDst: THREE.OneMinusSrcAlphaFactor,
+
+		blendSrcAlpha: THREE.SrcAlphaFactor,
+		blendDstAlpha: THREE.OneMinusSrcAlphaFactor
 
 	} );
 

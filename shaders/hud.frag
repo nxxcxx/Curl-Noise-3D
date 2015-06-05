@@ -3,7 +3,10 @@ varying vec2 vUv;
 
 void main() {
 
-	vec3 color = 1.0 - texture2D( tDiffuse, vUv ).aaa;
-	gl_FragColor = vec4( color, 1.0 );
+	vec4 tCol = texture2D( tDiffuse, vUv ).rgba;
+
+	vec3 col = 1.0 - vec3( 1.0 ) * tCol.a;
+
+	gl_FragColor = vec4( col, 1.0 );
 
 }

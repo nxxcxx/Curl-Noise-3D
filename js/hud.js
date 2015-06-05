@@ -18,9 +18,7 @@ function HUD( renderer ) {
 			}
 		},
 		vertexShader: SHADER_CONTAINER.hudVert,
-		fragmentShader: SHADER_CONTAINER.hudFrag,
-		depthWrite: false,
-		depthTest: false,
+		fragmentShader: SHADER_CONTAINER.hudFrag
 
 	} );
 

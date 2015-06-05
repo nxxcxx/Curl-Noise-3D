@@ -27,7 +27,8 @@ function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 			}
 		},
 		vertexShader: SHADER_CONTAINER.passVert,
-		fragmentShader: SHADER_CONTAINER.passFrag
+		fragmentShader: SHADER_CONTAINER.passFrag,
+		blending: THREE.NoBlending
 
 	} );
 
@@ -202,7 +203,8 @@ function FBOPass( name, vertexShader, fragmentShader, bufferSize ) {
 
 		uniforms: this.uniforms,
 		vertexShader: this.vertexShader,
-		fragmentShader: this.fragmentShader
+		fragmentShader: this.fragmentShader,
+		blending: THREE.NoBlending
 
 	} );
 

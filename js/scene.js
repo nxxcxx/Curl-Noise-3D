@@ -31,7 +31,6 @@ var sceneSettings = {
 	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
 	// camera orbit control
 	cameraCtrl = new THREE.OrbitControls( camera, container );
-	// cameraCtrl.object.position.z = 1500;
 
 	camera.position.set( -321.5847028300089, 215.28711637817776, 881.9719256352606 );
 	camera.quaternion.set( -0.12170374143462927, -0.340052864691943, 0.04443202001754455, 0.9314386960684689 );

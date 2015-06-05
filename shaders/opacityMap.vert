@@ -14,7 +14,7 @@ void main() {
 	vec3 newPosition = texture2D( positionBuffer, here.xy ).rgb;
 
    float opcMapSizeScale = 1.25;
-   gl_PointSize = size * ( vLife * 0.01 ) * opcMapSizeScale;
+   gl_PointSize = size * opcMapSizeScale;
 
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 

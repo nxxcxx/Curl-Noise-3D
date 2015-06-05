@@ -37,19 +37,16 @@ float easeOutCirc( float t ) {
 
 void main() {
 
+	float particleAlpha = 0.25;
+
 	float distanceFromCenter = distance( gl_PointCoord.xy, vec2( 0.5, 0.5 ) );
 	if ( distanceFromCenter > 0.5 ) discard;
+	float alpha = clamp( 1.0 - distanceFromCenter * 2.0, 0.0, 1.0 ) * particleAlpha;
 
-	vec4 color = vec4( 1.0, 0.0, 0.0, 1.0 );
-	float alphaScale = 1.0;
+	vec3 particleColor = vec3( 1.0, 0.2, 0.3 );
+	float pOpacityScale = 0.75;
+	vec3 color = ( 1.0 - vOpacity * pOpacityScale ) * particleColor;
 
-	float alpha = ( 1.0 - vOpacity ) * alphaScale;
-
-	color.rgb *= alpha;
-	color.a = 1.0 * ( vLife * 0.0025 );
-
-	color.a *= 1.0 - distance( gl_PointCoord.xy, vec2( 0.5, 0.5 ) );
-
-	gl_FragColor = color.rgba;
+	gl_FragColor = vec4( color * alpha, alpha );
 
 }

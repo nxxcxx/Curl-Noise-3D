@@ -42,14 +42,10 @@ void main() {
 	float adr = i + compare * pass;
 	vec4 partner = texture2D( mirrorBuffer, vec2( floor( mod( adr, resolution.x ) ) / resolution.x, floor( adr / resolution.x ) / resolution.y ) ).rgba;
 
-	// test sort specific axis
-	// float selfCompareCoord = self.z;
-	// float partCompareCoord = partner.z;
-
 	float selfProjectedLen = dot( self.xyz, halfAngle );
 	float partProjectedLen = dot( partner.xyz, halfAngle );
 
-	vec4 color = (selfProjectedLen * compare * sortOrder < partProjectedLen * compare * sortOrder) ? self : partner;
+	vec4 color = ( selfProjectedLen * compare < partProjectedLen * compare ) ? self : partner;
 
 	gl_FragColor = color;
 

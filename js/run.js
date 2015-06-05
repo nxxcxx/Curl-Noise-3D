@@ -1,35 +1,68 @@
 /* exported run */
 
+var eyeHelper = new THREE.ArrowHelper(
+	new THREE.Vector3( 1, 1, 0 ).normalize(),
+	new THREE.Vector3( 0, 0, 0 ),
+	500,
+	0x0
+);
+
+scene.add( eyeHelper );
+
+var lightHelper = new THREE.ArrowHelper(
+	new THREE.Vector3( 1, 1, 0 ).normalize(),
+	new THREE.Vector3( 0, 0, 0 ),
+	500,
+	0xff00ff
+);
+scene.add( lightHelper );
+
+var halfVectorHelper = new THREE.ArrowHelper(
+	new THREE.Vector3( 1, 1, 0 ).normalize(),
+	new THREE.Vector3( 0, 0, 0 ),
+	500,
+	0xff8800
+);
+scene.add( halfVectorHelper );
+
 
 function update() {
 
 	uniformsInput.time.value = clock.getElapsedTime();
 
 
-	var eye = new THREE.Vector3( 0, 0, 1 );
+	var eye = new THREE.Vector3( 0, 0, -1 );
 	eye.applyQuaternion( camera.quaternion );
+	eye.normalize();
 
 	var light = new THREE.Vector3( 0, -1, 0 );
+	light.normalize();
 
 	var hf = new THREE.Vector3();
 
-	// if ( eye.dot( light ) < 0.0 ) {
-		hf.subVectors( eye, light );
-		sortUniforms.sortOrder.value = 1;
-		psys.material.uniforms.sortOrder.value = -1;
-	// } else {
-	// 	eye.multiplyScalar( -1 );
-	// 	hf.subVectors( eye, light );
-	// 	sortUniforms.sortOrder.value = -1;
-	// 	psys.material.uniforms.sortOrder.value = 1;
-	// }
+	if ( eye.dot( light ) > 0.0 ) {
+
+		hf.addVectors( eye, light );
+		psys.material.blendSrc = THREE.OneFactor
+		psys.material.blendDst = THREE.OneMinusSrcAlphaFactor
+
+	} else {
+
+		eye.multiplyScalar( - 1 );
+		hf.addVectors( eye, light );
+		psys.material.blendSrc = THREE.OneMinusDstAlphaFactor
+		psys.material.blendDst = THREE.OneFactor
+
+	}
+
+	hf.normalize();
+	sortUniforms.halfAngle.value = hf;
 
 
-	sortUniforms.halfAngle.value = hf.normalize();
-
-
-
-
+	// eyeHelper.position.copy( camera.position );
+	eyeHelper.setDirection( eye );
+	lightHelper.setDirection( light );
+	halfVectorHelper.setDirection( hf );
 
 
 
@@ -62,7 +95,7 @@ function run() {
 
 	requestAnimationFrame( run );
 
-	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
+	renderer.setClearColor( sceneSettings.bgColor, 0.0 );
 	renderer.clear();
 
 	// !todo: fix particle stop sorting when pause and changing camera angle
