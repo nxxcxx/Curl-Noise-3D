@@ -39,7 +39,7 @@ var sceneSettings = {
 	cameraCtrl.update();
 
 // ---- Renderer
-	renderer = new THREE.WebGLRenderer( { antialias: true , alpha: true } );
+	renderer = new THREE.WebGLRenderer( { antialias: false , alpha: true } );
 	renderer.setSize( WIDTH, HEIGHT );
 	renderer.setPixelRatio( pixelRatio );
 	renderer.setClearColor( sceneSettings.bgColor, 1.0 );

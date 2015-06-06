@@ -49,7 +49,7 @@ function update() {
 
 	} else {
 
-		eye.multiplyScalar( - 1 );
+		eye.multiplyScalar( -1 );
 		hf.addVectors( eye, light );
 		psys.material.blendSrc = THREE.OneMinusDstAlphaFactor
 		psys.material.blendDst = THREE.OneFactor
@@ -74,7 +74,7 @@ function update() {
 	// sortPass = sorted position
 	psys.setPositionBuffer( FBOC.getPass( 'sortPass' ).getRenderTarget() );
 
-	psys.opacityMaterial.uniforms.positionBuffer.value = FBOC.getPass( 'sortPass' ).getRenderTarget() ;
+	psys.opacityMaterial.uniforms.positionBuffer.value = FBOC.getPass( 'sortPass' ).getRenderTarget();
 
 
 	// renderer.render( psys.lightScene, psys.lightCam, psys.opacityMap );

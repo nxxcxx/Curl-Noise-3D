@@ -104,7 +104,7 @@ var sceneSettings = {
 	cameraCtrl.update();
 
 // ---- Renderer
-	renderer = new THREE.WebGLRenderer( { antialias: true , alpha: true } );
+	renderer = new THREE.WebGLRenderer( { antialias: false , alpha: true } );
 	renderer.setSize( WIDTH, HEIGHT );
 	renderer.setPixelRatio( pixelRatio );
 	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
@@ -165,13 +165,12 @@ function initGui() {
 	gui_settings = gui.addFolder( 'Settings' );
 
 		gui_settings.addColor( sceneSettings, 'bgColor' ).name( 'Background' );
-
 		gui_settings.add( camera, 'fov', 25, 120, 1 ).name( 'FOV' );
 
-		gui_settings.add( uniformsInput.timeMult, 'value', 0.0, 0.5, 0.01 ).name( 'Time Multiplier' );
-		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 3.0, 0.01 ).name( 'Frequency' );
+		gui_settings.add( uniformsInput.timeMult, 'value', 0.0, 0.5  , 0.01 ).name( 'Time Multiplier' );
+		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 3.0  , 0.01 ).name( 'Frequency' );
 		gui_settings.add( uniformsInput.speed, 'value', 0.0, 200.0, 0.01 ).name( 'Speed' );
-		gui_settings.add( psys.material.uniforms.size, 'value', 1.0, 20.0, 0.01 ).name( 'Size' );
+		gui_settings.add( psys.material.uniforms.size, 'value', 1.0, 20.0 , 0.01 ).name( 'Size' );
 		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 100.0, 0.01 ).name( 'Luminance' );
 		gui_settings.add( sceneSettings, 'showFrameBuffer' ).name( 'Show Frame Buffer' );
 
@@ -193,13 +192,13 @@ function updateSettings() {
 
 }
 
-function updateGuiDisplay() {
+	function updateGuiDisplay() {
 
-	gui_display.__controllers.forEach( function ( controller ) {
-		controller.updateDisplay();
-	} );
+		gui_display.__controllers.forEach( function ( controller ) {
+			controller.updateDisplay();
+		} );
 
-}
+	}
 
 // Source: js/FBOCompositor.js
 
@@ -544,50 +543,68 @@ function ParticleSystem( _bufferSize ) {
 	this.geom = new THREE.BufferGeometry();
 
 	this.position = new Float32Array( this.bufferSize * this.bufferSize * 3 );
+	this.ndUV = ndarray( new Float32Array( this.bufferSize * this.bufferSize * 3 ), [ this.bufferSize, this.bufferSize, 3 ] );
 
-	var vertexHere = [];
 	var normalizedSpacing = 1.0 / this.bufferSize;
 	var normalizedHalfPixel = 0.5 / this.bufferSize;
 	for ( r = 0; r < this.bufferSize; r++ ) {
-
 		for ( c = 0; c < this.bufferSize; c++ ) {
 
-			// vertexHere.push( [ normalizedSpacing * c + normalizedHalfPixel, normalizedSpacing * r + normalizedHalfPixel, 0 ] );
-			vertexHere.push( [ 1.0 - normalizedSpacing * c + normalizedHalfPixel, 1.0 - normalizedSpacing * r + normalizedHalfPixel, 0 ] );
+			this.ndUV.set( r, c, 0, 1.0 - normalizedSpacing * c + normalizedHalfPixel );
+			this.ndUV.set( r, c, 1, 1.0 - normalizedSpacing * r + normalizedHalfPixel );
+			this.ndUV.set( r, c, 2, 0.0 );
 
 		}
-
 	}
 
-	// transfer to typed array
-	var buffHere = new Float32Array( vertexHere.length * 3 );
-
-	for ( i = 0; i < vertexHere.length; i++ ) {
-
-		buffHere[ i * 3 + 0 ] = vertexHere[ i ][ 0 ];
-		buffHere[ i * 3 + 1 ] = vertexHere[ i ][ 1 ];
-		buffHere[ i * 3 + 2 ] = vertexHere[ i ][ 2 ];
-
-	}
-
-	this.geom.addAttribute( 'here', new THREE.BufferAttribute( buffHere, 3 ) );
+	this.geom.addAttribute( 'here', new THREE.BufferAttribute( this.ndUV.data, 3 ) );
 	this.geom.addAttribute( 'position', new THREE.BufferAttribute( this.position, 3 ) );
+
+	delete this.ndUV;
+	delete this.position;
 
 	this.material = new THREE.ShaderMaterial( {
 
 		attributes: {
-			here: { type: 'v3', value: null }
+			here: {
+				type: 'v3',
+				value: null
+			}
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value: 10.0 },
-			luminance      : { type: 'f' , value: 50.0 },
-			particleTexture: { type: 't' , value: TEXTURES.electric },
-			positionBuffer : { type: 't' , value: null },
-			velocityBuffer : { type: 't' , value: null },
-			opacityMap     : { type: 't' , value: null },
-			lightMatrix    : { type: 'm4', value: null },
-			sortOrder      : { type: 'f' , value: -1 }
+			size: {
+				type: 'f',
+				value: 3.0
+			},
+			luminance: {
+				type: 'f',
+				value: 50.0
+			},
+			particleTexture: {
+				type: 't',
+				value: TEXTURES.electric
+			},
+			positionBuffer: {
+				type: 't',
+				value: null
+			},
+			velocityBuffer: {
+				type: 't',
+				value: null
+			},
+			opacityMap: {
+				type: 't',
+				value: null
+			},
+			lightMatrix: {
+				type: 'm4',
+				value: null
+			},
+			sortOrder: {
+				type: 'f',
+				value: -1
+			}
 		},
 
 		vertexShader: SHADER_CONTAINER.particleVert,
@@ -601,13 +618,19 @@ function ParticleSystem( _bufferSize ) {
 		blending: THREE.CustomBlending,
 		blendEquation: THREE.AddEquation,
 
-		// front to back
-		blendSrc: THREE.OneFactor,
-		blendDst: THREE.OneMinusSrcAlphaFactor,
+		// blend modes override in run time
+		blendSrc: null,
+		blendDst: null,
 
-		// back to front
-		// blendSrc: THREE.OneMinusDstAlphaFactor,
-		// blendDst: THREE.OneFactor,
+		/*
+			back to front
+			THREE.OneFactor,
+			THREE.OneMinusSrcAlphaFactor,
+
+			front to back
+			THREE.OneMinusDstAlphaFactor,
+			THREE.OneFactor,
+		*/
 
 	} );
 
@@ -678,7 +701,7 @@ ParticleSystem.prototype.init = function () {
 	this.lightScene.add( this.particleMesh );
 
 	var downSample = 1.0;
-	this.opacityMap = new THREE.WebGLRenderTarget( this.bufferSize*downSample, this.bufferSize*downSample, {
+	this.opacityMap = new THREE.WebGLRenderTarget( this.bufferSize * downSample, this.bufferSize * downSample, {
 
 		wrapS: THREE.ClampToEdgeWrapping,
 		wrapT: THREE.ClampToEdgeWrapping,
@@ -691,7 +714,7 @@ ParticleSystem.prototype.init = function () {
 
 	} );
 
-	this.numSlices = 64;
+	this.numSlices = 32;
 	this.pCount = this.bufferSize * this.bufferSize;
 	this.pPerSlice = this.pCount / this.numSlices;
 	console.log( this.pCount, this.pPerSlice );
@@ -702,14 +725,29 @@ ParticleSystem.prototype.init = function () {
 	this.opacityMaterial = new THREE.ShaderMaterial( {
 
 		attributes: {
-			here: { type: 'v3', value: null }
+			here: {
+				type: 'v3',
+				value: null
+			}
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value : 7.0 },
-			luminance      : { type: 'f' , value : 50.0 },
-			particleTexture: { type: 't' , value : TEXTURES.electric },
-			positionBuffer : { type: 't' , value : null },
+			size: {
+				type: 'f',
+				value: 3.0
+			},
+			luminance: {
+				type: 'f',
+				value: 50.0
+			},
+			particleTexture: {
+				type: 't',
+				value: TEXTURES.electric
+			},
+			positionBuffer: {
+				type: 't',
+				value: null
+			},
 		},
 
 		vertexShader: SHADER_CONTAINER.opacityMapVert,
@@ -728,6 +766,8 @@ ParticleSystem.prototype.init = function () {
 
 	} );
 
+	scene.add( this.particleMesh );
+
 };
 
 ParticleSystem.prototype.render = function ( renderer ) {
@@ -739,16 +779,20 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 
 	// set position buffer
-	for ( var i = 0; i < this.numSlices; i ++ ) {
+	for ( var i = 0; i < this.numSlices; i++ ) {
 
 		// set geometry draw calls
-		this.geom.drawcalls[0] = { start: 0, count: this.pPerSlice, index: i * this.pPerSlice };
+		this.geom.drawcalls[ 0 ] = {
+			start: 0,
+			count: this.pPerSlice,
+			index: i * this.pPerSlice
+		};
 
 		// render to screen
 
 		this.particleMesh.material = this.material;
-
-		scene.add( this.particleMesh );
+		// !todo: adding or removing to scene is slow, use visible = false
+		// scene.add( this.particleMesh );
 		renderer.render( scene, camera );
 
 
@@ -758,8 +802,9 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 		this.particleMesh.material = this.opacityMaterial;
 
-		this.lightScene.add( this.particleMesh );
-		renderer.render( this.lightScene, this.lightCam, this.opacityMap );
+		// this.lightScene.add( this.particleMesh );
+		// renderer.render( this.lightScene, this.lightCam, this.opacityMap );
+		renderer.render( scene, this.lightCam, this.opacityMap );
 
 	}
 
@@ -806,11 +851,6 @@ function main() {
 	FBOC.renderInitialBuffer( initialPositionDataTexture, 'positionPass' );
 
 
-	// var boxMesh = new THREE.Mesh( new THREE.BoxGeometry( 1500, 1500, 1500 ), null );
-	// cube = new THREE.BoxHelper( boxMesh );
-	// cube.material.color.set( 0xffffff );
-	// scene.add( cube );
-
 	bgMesh = new THREE.Mesh(
 		// new THREE.BoxGeometry( 1500, 1500, 1500 ),
 		new THREE.SphereGeometry( 1000, 64, 64 ),
@@ -826,7 +866,7 @@ function main() {
 	bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
 	bgMat = new THREE.MeshBasicMaterial( {
 
-		color: 0x29333D,
+		color: 0x757575,
 		side: THREE.DoubleSide,
 		transparent: true,
 
@@ -901,7 +941,7 @@ function update() {
 
 	} else {
 
-		eye.multiplyScalar( - 1 );
+		eye.multiplyScalar( -1 );
 		hf.addVectors( eye, light );
 		psys.material.blendSrc = THREE.OneMinusDstAlphaFactor
 		psys.material.blendDst = THREE.OneFactor
@@ -926,7 +966,7 @@ function update() {
 	// sortPass = sorted position
 	psys.setPositionBuffer( FBOC.getPass( 'sortPass' ).getRenderTarget() );
 
-	psys.opacityMaterial.uniforms.positionBuffer.value = FBOC.getPass( 'sortPass' ).getRenderTarget() ;
+	psys.opacityMaterial.uniforms.positionBuffer.value = FBOC.getPass( 'sortPass' ).getRenderTarget();
 
 
 	// renderer.render( psys.lightScene, psys.lightCam, psys.opacityMap );

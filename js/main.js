@@ -35,11 +35,6 @@ function main() {
 	FBOC.renderInitialBuffer( initialPositionDataTexture, 'positionPass' );
 
 
-	// var boxMesh = new THREE.Mesh( new THREE.BoxGeometry( 1500, 1500, 1500 ), null );
-	// cube = new THREE.BoxHelper( boxMesh );
-	// cube.material.color.set( 0xffffff );
-	// scene.add( cube );
-
 	bgMesh = new THREE.Mesh(
 		// new THREE.BoxGeometry( 1500, 1500, 1500 ),
 		new THREE.SphereGeometry( 1000, 64, 64 ),
@@ -55,7 +50,7 @@ function main() {
 	bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
 	bgMat = new THREE.MeshBasicMaterial( {
 
-		color: 0x29333D,
+		color: 0x757575,
 		side: THREE.DoubleSide,
 		transparent: true,
 
