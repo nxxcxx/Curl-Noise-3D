@@ -163,11 +163,13 @@ function initGui() {
 		gui_display.autoListen = false;
 
 	gui_settings = gui.addFolder( 'Settings' );
+
 		gui_settings.addColor( sceneSettings, 'bgColor' ).name( 'Background' );
+
 		gui_settings.add( camera, 'fov', 25, 120, 1 ).name( 'FOV' );
 
 		gui_settings.add( uniformsInput.timeMult, 'value', 0.0, 0.5, 0.01 ).name( 'Time Multiplier' );
-		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 20.0, 0.01 ).name( 'Frequency' );
+		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 3.0, 0.01 ).name( 'Frequency' );
 		gui_settings.add( uniformsInput.speed, 'value', 0.0, 200.0, 0.01 ).name( 'Speed' );
 		gui_settings.add( psys.material.uniforms.size, 'value', 1.0, 20.0, 0.01 ).name( 'Size' );
 		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 100.0, 0.01 ).name( 'Luminance' );
@@ -186,7 +188,8 @@ function initGui() {
 function updateSettings() {
 
 	camera.updateProjectionMatrix();
-	renderer.setClearColor( sceneSettings.bgColor , 1.0 );
+	bgMat.color.setHex( sceneSettings.bgColor );
+	// renderer.setClearColor( sceneSettings.bgColor , 1.0 );
 
 }
 
@@ -577,7 +580,7 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value: 5.0 },
+			size           : { type: 'f' , value: 10.0 },
 			luminance      : { type: 'f' , value: 50.0 },
 			particleTexture: { type: 't' , value: TEXTURES.electric },
 			positionBuffer : { type: 't' , value: null },
@@ -650,7 +653,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 ParticleSystem.prototype.init = function () {
 
 	// cam
-	this.lightCam = new THREE.OrthographicCamera( -500, 500, 500, -500, 10, 1000 );
+	this.lightCam = new THREE.OrthographicCamera( -500, 1500, 500, -500, 10, 1000 );
 	this.lightCam.position.set( 400, 500, 0 );
 	this.lightCam.rotateX( -Math.PI * 0.5 );
 	this.lightCam.updateMatrixWorld();
@@ -674,7 +677,7 @@ ParticleSystem.prototype.init = function () {
 	this.lightScene = new THREE.Scene();
 	this.lightScene.add( this.particleMesh );
 
-	var downSample = 0.5;
+	var downSample = 1.0;
 	this.opacityMap = new THREE.WebGLRenderTarget( this.bufferSize*downSample, this.bufferSize*downSample, {
 
 		wrapS: THREE.ClampToEdgeWrapping,
@@ -772,9 +775,9 @@ function main() {
 
 	uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
-		timeMult : { type: 'f', value: 0.01 },
-		noiseFreq: { type: 'f', value: 1.25 },
-		speed    : { type: 'f', value: 9.0 }
+		timeMult : { type: 'f', value: 0.2 },
+		noiseFreq: { type: 'f', value: 1.3 },
+		speed    : { type: 'f', value: 23.2 }
 	};
 
 	var numParSq = 256;
@@ -791,7 +794,6 @@ function main() {
 	};
 	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
 	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
-
 
 
 	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
@@ -820,9 +822,29 @@ function main() {
 
 	// scene.add( bgMesh );
 
+	// test Background
+	bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
+	bgMat = new THREE.MeshBasicMaterial( {
+
+		color: 0x29333D,
+		side: THREE.DoubleSide,
+		transparent: true,
+
+		blending: THREE.CustomBlending,
+		blendEquation: THREE.AddEquation,
+		blendSrc: THREE.OneMinusDstAlphaFactor,
+		blendDst: THREE.OneFactor
+
+	} );
+	var bgMesh = new THREE.Mesh( bgGeo, bgMat );
+	bgScene = new THREE.Scene();
+	bgCam = new THREE.Camera();
+	bgScene.add( bgMesh );
+
 
 
 	hud = new HUD( renderer );
+
 	initGui();
 
 }
@@ -867,6 +889,7 @@ function update() {
 
 	var light = new THREE.Vector3( 0, -1, 0 );
 	light.normalize();
+
 
 	var hf = new THREE.Vector3();
 
@@ -925,7 +948,7 @@ function run() {
 
 	requestAnimationFrame( run );
 
-	renderer.setClearColor( sceneSettings.bgColor, 0.0 );
+	renderer.setClearColor( 0, 0.0 );
 	renderer.clear();
 
 	// !todo: fix particle stop sorting when pause and changing camera angle
@@ -937,7 +960,7 @@ function run() {
 
 	psys.render( renderer, scene, camera );
 
-
+	renderer.render( bgScene, bgCam );
 
 	if ( sceneSettings.showFrameBuffer ) {
 		// hud.setInputTexture( FBOC.getPass( 'sortPass' ).getRenderTarget() );

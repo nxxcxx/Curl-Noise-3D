@@ -4,9 +4,9 @@ function main() {
 
 	uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
-		timeMult : { type: 'f', value: 0.01 },
-		noiseFreq: { type: 'f', value: 1.25 },
-		speed    : { type: 'f', value: 9.0 }
+		timeMult : { type: 'f', value: 0.2 },
+		noiseFreq: { type: 'f', value: 1.3 },
+		speed    : { type: 'f', value: 23.2 }
 	};
 
 	var numParSq = 256;
@@ -23,7 +23,6 @@ function main() {
 	};
 	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
 	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
-
 
 
 	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
@@ -52,9 +51,29 @@ function main() {
 
 	// scene.add( bgMesh );
 
+	// test Background
+	bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
+	bgMat = new THREE.MeshBasicMaterial( {
+
+		color: 0x29333D,
+		side: THREE.DoubleSide,
+		transparent: true,
+
+		blending: THREE.CustomBlending,
+		blendEquation: THREE.AddEquation,
+		blendSrc: THREE.OneMinusDstAlphaFactor,
+		blendDst: THREE.OneFactor
+
+	} );
+	var bgMesh = new THREE.Mesh( bgGeo, bgMat );
+	bgScene = new THREE.Scene();
+	bgCam = new THREE.Camera();
+	bgScene.add( bgMesh );
+
 
 
 	hud = new HUD( renderer );
+
 	initGui();
 
 }

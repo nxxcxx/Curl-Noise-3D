@@ -11,6 +11,10 @@ varying float vOpacity;
 
 float square(float s) { return s * s; }
 vec3 square(vec3 s) { return s * s; }
+vec3 hueGradient(float t) {
+    vec3 p = abs(fract(t + vec3(1.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0);
+	return (clamp(p - 1.0, 0.0, 1.0));
+}
 vec3 electricGradient(float t) {
 	return clamp( vec3(t * 8.0 - 6.3, square(smoothstep(0.6, 0.9, t)), pow(abs(t), 3.0) * 1.7), 0.0, 1.0);
 }
@@ -19,6 +23,15 @@ vec3 heatmapGradient(float t) {
 }
 vec3 neonGradient(float t) {
 	return clamp(vec3(t * 1.3 + 0.1, square(abs(0.43 - t) * 1.7), (1.0 - t) * 1.7), 0.0, 1.0);
+}
+vec3 rainbowGradient(float t) {
+	vec3 c = 1.0 - pow(abs(vec3(t) - vec3(0.65, 0.5, 0.2)) * vec3(3.0, 3.0, 5.0), vec3(1.5, 1.3, 1.7));
+	c.r = max((0.15 - square(abs(t - 0.04) * 5.0)), c.r);
+	c.g = (t < 0.5) ? smoothstep(0.04, 0.45, t) : c.g;
+	return clamp(c, 0.0, 1.0);
+}
+vec3 ansiGradient(float t) {
+	return mod(floor(t * vec3(8.0, 4.0, 2.0)), 2.0);
 }
 
 float easeOutQuint( float t ) {
@@ -37,16 +50,28 @@ float easeOutCirc( float t ) {
 
 void main() {
 
-	float particleAlpha = 0.25;
+	float particleAlpha = 0.3;
 
 	float distanceFromCenter = distance( gl_PointCoord.xy, vec2( 0.5, 0.5 ) );
 	if ( distanceFromCenter > 0.5 ) discard;
 	float alpha = clamp( 1.0 - distanceFromCenter * 2.0, 0.0, 1.0 ) * particleAlpha;
 
-	vec3 particleColor = vec3( 1.0, 0.2, 0.3 );
-	float pOpacityScale = 0.75;
-	vec3 color = ( 1.0 - vOpacity * pOpacityScale ) * particleColor;
+	// vec3 particleColor = vec3( 1.0, 0.2, 0.3 );
+
+	vec3 particleColor = heatmapGradient( smoothstep( -0.1, 1.3, vLife ) );
+
+	// current slice accumulated shadow intensity
+	float accLightScale = 0.8;
+	float accumulatedShadow  = 1.0 - ( vOpacity * accLightScale );
+
+	vec3 color =  accumulatedShadow * particleColor;
+
+	// if ( vLife < 50.0 ) {
+	// 	color = accumulatedShadow * vec3( 0.1, 0.1, 1.0 );
+	// 	alpha = 0.5;
+	// }
 
 	gl_FragColor = vec4( color * alpha, alpha );
+
 
 }

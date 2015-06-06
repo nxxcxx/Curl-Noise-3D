@@ -35,8 +35,8 @@ void main()	{
 		pos.y = r * sin( th ) * sin( ph );
 		pos.z = r * cos( th );
 
-		// !todo: life = life - deltaTime ( uniform )
-		life = rand( uv ) * 200.0 + 50.0;
+		// !todo: life = life - deltaTime ( uniform ) & move to separate data texture
+		life = rand( uv ) * 100.0 + 50.0;
 
 	}
 

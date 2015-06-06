@@ -42,7 +42,7 @@ function ParticleSystem( _bufferSize ) {
 		},
 
 		uniforms: {
-			size           : { type: 'f' , value: 5.0 },
+			size           : { type: 'f' , value: 10.0 },
 			luminance      : { type: 'f' , value: 50.0 },
 			particleTexture: { type: 't' , value: TEXTURES.electric },
 			positionBuffer : { type: 't' , value: null },
@@ -115,7 +115,7 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 ParticleSystem.prototype.init = function () {
 
 	// cam
-	this.lightCam = new THREE.OrthographicCamera( -500, 500, 500, -500, 10, 1000 );
+	this.lightCam = new THREE.OrthographicCamera( -500, 1500, 500, -500, 10, 1000 );
 	this.lightCam.position.set( 400, 500, 0 );
 	this.lightCam.rotateX( -Math.PI * 0.5 );
 	this.lightCam.updateMatrixWorld();
@@ -139,7 +139,7 @@ ParticleSystem.prototype.init = function () {
 	this.lightScene = new THREE.Scene();
 	this.lightScene.add( this.particleMesh );
 
-	var downSample = 0.5;
+	var downSample = 1.0;
 	this.opacityMap = new THREE.WebGLRenderTarget( this.bufferSize*downSample, this.bufferSize*downSample, {
 
 		wrapS: THREE.ClampToEdgeWrapping,

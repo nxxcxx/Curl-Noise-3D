@@ -38,6 +38,7 @@ function update() {
 	var light = new THREE.Vector3( 0, -1, 0 );
 	light.normalize();
 
+
 	var hf = new THREE.Vector3();
 
 	if ( eye.dot( light ) > 0.0 ) {
@@ -95,7 +96,7 @@ function run() {
 
 	requestAnimationFrame( run );
 
-	renderer.setClearColor( sceneSettings.bgColor, 0.0 );
+	renderer.setClearColor( 0, 0.0 );
 	renderer.clear();
 
 	// !todo: fix particle stop sorting when pause and changing camera angle
@@ -107,7 +108,7 @@ function run() {
 
 	psys.render( renderer, scene, camera );
 
-
+	renderer.render( bgScene, bgCam );
 
 	if ( sceneSettings.showFrameBuffer ) {
 		// hud.setInputTexture( FBOC.getPass( 'sortPass' ).getRenderTarget() );

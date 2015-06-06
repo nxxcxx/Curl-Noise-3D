@@ -18,7 +18,7 @@ float rand( vec2 p ){
 
 void main() {
 
-   vLife = texture2D( positionBuffer, here.xy ).a;
+   vLife = texture2D( positionBuffer, here.xy ).a / 150.0;
 
 	vec3 newPosition = texture2D( positionBuffer, here.xy ).rgb;
 
