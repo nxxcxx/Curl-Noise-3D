@@ -27,16 +27,16 @@ void main()	{
 	if ( life <= 0.0 ) {
 
 		float spawnRange = 50.0;
-		float r  = rand( uv ) * spawnRange + 5.0;
-		float th = rand( uv + 111.0 ) * PI;
-		float ph = rand( uv + 222.0 ) * 2.0 * PI;
+		float r  = rand( uv.xy ) * spawnRange + 5.0;
+		float th = rand( uv.yx ) * PI;
+		float ph = rand( uv.xx ) * 2.0 * PI;
 
 		pos.x = r * sin( th ) * cos( ph );
 		pos.y = r * sin( th ) * sin( ph );
 		pos.z = r * cos( th );
 
 		// !todo: life = life - deltaTime ( uniform ) & move to separate data texture
-		life = rand( uv ) * 100.0 + 50.0;
+		life = rand( uv.yy ) * 100.0 + 50.0;
 
 	}
 

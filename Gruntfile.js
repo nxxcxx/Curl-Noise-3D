@@ -19,14 +19,15 @@ module.exports = function ( grunt ) {
 				dest: 'js/build/app.js',
 				nonull: true,
 				options: {
+					banner: "'use strict';\n",
 					process: function ( src, filepath ) {
-						return '// Source: ' + filepath + '\n' + src;
+						return '// Source: ' + filepath + '\n' + src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
 					},
 					sourceMap: true
 				}
 			},
 			vendor: {
-				src: [ 'js/vendor/Detector.js', 'js/vendor/dat.gui.min.js', 'js/vendor/stats.min.js', 'js/vendor/three.js', 'js/vendor/OrbitControls.js', 'js/vendor/OBJLoader.js' ],
+				src: [ 'js/vendor/ndarray.js', 'js/vendor/Detector.js', 'js/vendor/dat.gui.min.js', 'js/vendor/stats.min.js', 'js/vendor/three.js', 'js/vendor/OrbitControls.js', 'js/vendor/OBJLoader.js' ],
 				dest: 'js/vendor/vendor-merge.min.js',
 				nonull: true,
 				options: {
@@ -36,11 +37,11 @@ module.exports = function ( grunt ) {
 		},
 		uglify: {
 			options: {},
-			main: {
-				src: [ 'js/build/app.js' ],
-				dest: 'js/build/app.min.js',
-				sourceMap: true
-			},
+			// main: {
+			// 	src: [ 'js/build/app.js' ],
+			// 	dest: 'js/build/app.min.js',
+			// 	sourceMap: true
+			// },
 			vendor: {
 				src: [ 'js/vendor/vendor-merge.min.js' ],
 				dest: 'js/vendor/vendor-merge.min.js',
@@ -48,7 +49,7 @@ module.exports = function ( grunt ) {
 			}
 		},
 		watch: {
-			options: { // global opptions
+			options: {
 				livereload: true
 			},
 			grunt: {

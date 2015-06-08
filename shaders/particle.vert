@@ -10,6 +10,8 @@ attribute vec3 here;
 
 varying float vLife;
 varying float vOpacity;
+varying vec2 blurDirection;
+
 
 
 float rand( vec2 p ){
@@ -22,11 +24,23 @@ void main() {
 
 	vec3 newPosition = texture2D( positionBuffer, here.xy ).rgb;
 
-   vec2 opacityTexCoord = vec2( lightMatrix * vec4( newPosition, 1.0 ) );  // use newPosition not position
+   // project to lighViewSpaceCoord. lightMatrix contains only [0.5 offsetMatrix] * [projtection] * [view]. so need to multiply w/ modelMatrix
+   vec2 opacityTexCoord = vec2( lightMatrix * modelMatrix * vec4( newPosition, 1.0 ) );
    vOpacity = texture2D( opacityMap, opacityTexCoord ).a;
 
-	gl_PointSize = size;
-	gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+	// gl_PointSize = size;
+	gl_PointSize = size * ( 2000.0 / length( ( modelViewMatrix * vec4( newPosition, 1.0 ) ).xyz ) ) ;
+
+   vec4 MVP = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+   vec2 projectedParticleCoord = MVP.xy;
+
+   // !todo: get vel from sorted texture
+   vec3 vel = vec3( 5.0, 0.0, 0.0 );
+   vec2 projectedVelocityCoord = ( projectionMatrix * modelViewMatrix * vec4( newPosition + vel, 1.0 ) ).xy;
+
+   blurDirection = projectedVelocityCoord - projectedParticleCoord;
+
+	gl_Position = MVP;
 
 
 }

@@ -1,4 +1,5 @@
 /* exported gui, gui_display, gui_settings, initGui, updateGuiDisplay */
+'use strict';
 
 var gui, gui_display, gui_settings;
 

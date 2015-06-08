@@ -1,8 +1,11 @@
-/* exported main */
+/* exported  main */
+/* global FBOC, uniformsInput, sortUniforms, SHADER_CONTAINER, ParticleSystem, psys, FBOCompositor, HUD, renderer */
+
+'use strict';
 
 function main() {
 
-	uniformsInput = {
+	window.uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
 		timeMult : { type: 'f', value: 0.2 },
 		noiseFreq: { type: 'f', value: 1.3 },
@@ -10,11 +13,11 @@ function main() {
 	};
 
 	var numParSq = 256;
-	FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
+	window.FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
 
-	sortUniforms = {
+	window.sortUniforms = {
 		pass: { type: 'f', value: -1 },
 		stage: { type: 'f', value: -1 },
 		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) },
@@ -28,27 +31,27 @@ function main() {
 	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
 	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
 
-	psys = new ParticleSystem( numParSq );
+	window.psys = new ParticleSystem( numParSq );
 	psys.init();
 
 	var initialPositionDataTexture = psys.generatePositionTexture();
 	FBOC.renderInitialBuffer( initialPositionDataTexture, 'positionPass' );
 
 
-	bgMesh = new THREE.Mesh(
-		// new THREE.BoxGeometry( 1500, 1500, 1500 ),
-		new THREE.SphereGeometry( 1000, 64, 64 ),
-		new THREE.MeshBasicMaterial( {
-			side: THREE.BackSide,
-			color: 0x101010
-		} )
-	);
+	// window.bgMesh = new THREE.Mesh(
+	// 	// new THREE.BoxGeometry( 1500, 1500, 1500 ),
+	// 	new THREE.SphereGeometry( 1000, 64, 64 ),
+	// 	new THREE.MeshBasicMaterial( {
+	// 		side: THREE.BackSide,
+	// 		color: 0x101010
+	// 	} )
+	// );
 
 	// scene.add( bgMesh );
 
-	// test Background
-	bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
-	bgMat = new THREE.MeshBasicMaterial( {
+	// test quad Background
+	window.bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
+	window.bgMat = new THREE.MeshBasicMaterial( {
 
 		color: 0x757575,
 		side: THREE.DoubleSide,
@@ -60,14 +63,14 @@ function main() {
 		blendDst: THREE.OneFactor
 
 	} );
-	var bgMesh = new THREE.Mesh( bgGeo, bgMat );
-	bgScene = new THREE.Scene();
-	bgCam = new THREE.Camera();
+	window.bgMesh = new THREE.Mesh( bgGeo, bgMat );
+	window.bgScene = new THREE.Scene();
+	window.bgCam = new THREE.Camera();
 	bgScene.add( bgMesh );
 
 
 
-	hud = new HUD( renderer );
+	window.hud = new HUD( renderer );
 
 	initGui();
 

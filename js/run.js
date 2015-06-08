@@ -1,4 +1,5 @@
 /* exported run */
+'use strict';
 
 var eyeHelper = new THREE.ArrowHelper(
 	new THREE.Vector3( 1, 1, 0 ).normalize(),
@@ -55,6 +56,7 @@ function update() {
 		psys.material.blendDst = THREE.OneFactor
 
 	}
+
 
 	hf.normalize();
 	sortUniforms.halfAngle.value = hf;

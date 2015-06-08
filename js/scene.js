@@ -1,4 +1,5 @@
 /* exported updateHelpers */
+'use strict';
 
 if ( !Detector.webgl ){
 	Detector.addGetWebGLMessage();

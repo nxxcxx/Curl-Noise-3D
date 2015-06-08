@@ -1,3 +1,5 @@
+'use strict';
+
 function ParticleSystem( _bufferSize ) {
 
 	this.bufferSize = _bufferSize;
@@ -10,8 +12,8 @@ function ParticleSystem( _bufferSize ) {
 
 	var normalizedSpacing = 1.0 / this.bufferSize;
 	var normalizedHalfPixel = 0.5 / this.bufferSize;
-	for ( r = 0; r < this.bufferSize; r++ ) {
-		for ( c = 0; c < this.bufferSize; c++ ) {
+	for ( let r = 0; r < this.bufferSize; r++ ) {
+		for ( let c = 0; c < this.bufferSize; c++ ) {
 
 			this.ndUV.set( r, c, 0, 1.0 - normalizedSpacing * c + normalizedHalfPixel );
 			this.ndUV.set( r, c, 1, 1.0 - normalizedSpacing * r + normalizedHalfPixel );
@@ -139,8 +141,8 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 ParticleSystem.prototype.init = function () {
 
 	// cam
-	this.lightCam = new THREE.OrthographicCamera( -500, 1500, 500, -500, 10, 1000 );
-	this.lightCam.position.set( 400, 500, 0 );
+	this.lightCam = new THREE.OrthographicCamera( -600, 1000, 500, -500, 10, 1000 );
+	this.lightCam.position.set( 500, 500, 0 );
 	this.lightCam.rotateX( -Math.PI * 0.5 );
 	this.lightCam.updateMatrixWorld();
 	this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
@@ -242,7 +244,7 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 
 	// set position buffer
-	for ( var i = 0; i < this.numSlices; i++ ) {
+	for ( let i = 0; i < this.numSlices; i++ ) {
 
 		// set geometry draw calls
 		this.geom.drawcalls[ 0 ] = {
@@ -271,7 +273,7 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 	}
 
-	// don't know why need to reset render target??
+	// need to reset render target
 	renderer.setRenderTarget( this.dummyRenderTarget );
 
 };

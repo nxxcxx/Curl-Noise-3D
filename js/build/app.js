@@ -1,3 +1,4 @@
+'use strict';
 // Source: js/loaders.js
 var loadingManager = new THREE.LoadingManager();
 loadingManager.onLoad = function () {
@@ -56,7 +57,7 @@ shaderLoader.loadMultiple( SHADER_CONTAINER, {
 
 var TEXTURES = {};
 var textureLoader = new THREE.TextureLoader( loadingManager );
-textureLoader.load( 'sprites/electric.png', function ( tex ) {
+textureLoader.load( 'sprites/electricScaled.png', function ( tex ) {
 
 	TEXTURES.electric = tex;
 
@@ -64,7 +65,6 @@ textureLoader.load( 'sprites/electric.png', function ( tex ) {
 
 // Source: js/scene.js
 /* exported updateHelpers */
-
 if ( !Detector.webgl ){
 	Detector.addGetWebGLMessage();
 }
@@ -149,7 +149,6 @@ var sceneSettings = {
 
 // Source: js/gui.js
 /* exported gui, gui_display, gui_settings, initGui, updateGuiDisplay */
-
 var gui, gui_display, gui_settings;
 
 function initGui() {
@@ -201,7 +200,6 @@ function updateSettings() {
 	}
 
 // Source: js/FBOCompositor.js
-
 function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 
 	this.renderer = renderer;
@@ -323,7 +321,7 @@ FBOCompositor.prototype = {
 
 	step: function () {
 
-		for ( var i = 0; i < this.passes.length; i++ ) {
+		for ( let i = 0; i < this.passes.length; i++ ) {
 
 			this.updatePassDependencies();
 			var currPass = this.passes[ i ];
@@ -465,7 +463,6 @@ FBOPass.prototype = {
 };
 
 // Source: js/hud.js
-
 function HUD( renderer ) {
 
 	this.renderer = renderer;
@@ -547,8 +544,8 @@ function ParticleSystem( _bufferSize ) {
 
 	var normalizedSpacing = 1.0 / this.bufferSize;
 	var normalizedHalfPixel = 0.5 / this.bufferSize;
-	for ( r = 0; r < this.bufferSize; r++ ) {
-		for ( c = 0; c < this.bufferSize; c++ ) {
+	for ( let r = 0; r < this.bufferSize; r++ ) {
+		for ( let c = 0; c < this.bufferSize; c++ ) {
 
 			this.ndUV.set( r, c, 0, 1.0 - normalizedSpacing * c + normalizedHalfPixel );
 			this.ndUV.set( r, c, 1, 1.0 - normalizedSpacing * r + normalizedHalfPixel );
@@ -676,8 +673,8 @@ ParticleSystem.prototype.generatePositionTexture = function () {
 ParticleSystem.prototype.init = function () {
 
 	// cam
-	this.lightCam = new THREE.OrthographicCamera( -500, 1500, 500, -500, 10, 1000 );
-	this.lightCam.position.set( 400, 500, 0 );
+	this.lightCam = new THREE.OrthographicCamera( -600, 1000, 500, -500, 10, 1000 );
+	this.lightCam.position.set( 500, 500, 0 );
 	this.lightCam.rotateX( -Math.PI * 0.5 );
 	this.lightCam.updateMatrixWorld();
 	this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
@@ -779,7 +776,7 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 
 	// set position buffer
-	for ( var i = 0; i < this.numSlices; i++ ) {
+	for ( let i = 0; i < this.numSlices; i++ ) {
 
 		// set geometry draw calls
 		this.geom.drawcalls[ 0 ] = {
@@ -808,17 +805,18 @@ ParticleSystem.prototype.render = function ( renderer ) {
 
 	}
 
-	// don't know why need to reset render target??
+	// need to reset render target
 	renderer.setRenderTarget( this.dummyRenderTarget );
 
 };
 
 // Source: js/main.js
-/* exported main */
+/* exported  main */
+/* global FBOC, uniformsInput, sortUniforms, SHADER_CONTAINER, ParticleSystem, psys, FBOCompositor, HUD, renderer */
 
 function main() {
 
-	uniformsInput = {
+	window.uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
 		timeMult : { type: 'f', value: 0.2 },
 		noiseFreq: { type: 'f', value: 1.3 },
@@ -826,11 +824,11 @@ function main() {
 	};
 
 	var numParSq = 256;
-	FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
+	window.FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
 	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
 	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
 
-	sortUniforms = {
+	window.sortUniforms = {
 		pass: { type: 'f', value: -1 },
 		stage: { type: 'f', value: -1 },
 		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) },
@@ -844,27 +842,27 @@ function main() {
 	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
 	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
 
-	psys = new ParticleSystem( numParSq );
+	window.psys = new ParticleSystem( numParSq );
 	psys.init();
 
 	var initialPositionDataTexture = psys.generatePositionTexture();
 	FBOC.renderInitialBuffer( initialPositionDataTexture, 'positionPass' );
 
 
-	bgMesh = new THREE.Mesh(
-		// new THREE.BoxGeometry( 1500, 1500, 1500 ),
-		new THREE.SphereGeometry( 1000, 64, 64 ),
-		new THREE.MeshBasicMaterial( {
-			side: THREE.BackSide,
-			color: 0x101010
-		} )
-	);
+	// window.bgMesh = new THREE.Mesh(
+	// 	// new THREE.BoxGeometry( 1500, 1500, 1500 ),
+	// 	new THREE.SphereGeometry( 1000, 64, 64 ),
+	// 	new THREE.MeshBasicMaterial( {
+	// 		side: THREE.BackSide,
+	// 		color: 0x101010
+	// 	} )
+	// );
 
 	// scene.add( bgMesh );
 
-	// test Background
-	bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
-	bgMat = new THREE.MeshBasicMaterial( {
+	// test quad Background
+	window.bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
+	window.bgMat = new THREE.MeshBasicMaterial( {
 
 		color: 0x757575,
 		side: THREE.DoubleSide,
@@ -876,14 +874,14 @@ function main() {
 		blendDst: THREE.OneFactor
 
 	} );
-	var bgMesh = new THREE.Mesh( bgGeo, bgMat );
-	bgScene = new THREE.Scene();
-	bgCam = new THREE.Camera();
+	window.bgMesh = new THREE.Mesh( bgGeo, bgMat );
+	window.bgScene = new THREE.Scene();
+	window.bgCam = new THREE.Camera();
 	bgScene.add( bgMesh );
 
 
 
-	hud = new HUD( renderer );
+	window.hud = new HUD( renderer );
 
 	initGui();
 
@@ -891,7 +889,6 @@ function main() {
 
 // Source: js/run.js
 /* exported run */
-
 var eyeHelper = new THREE.ArrowHelper(
 	new THREE.Vector3( 1, 1, 0 ).normalize(),
 	new THREE.Vector3( 0, 0, 0 ),
@@ -947,6 +944,7 @@ function update() {
 		psys.material.blendDst = THREE.OneFactor
 
 	}
+
 
 	hf.normalize();
 	sortUniforms.halfAngle.value = hf;
@@ -1013,7 +1011,6 @@ function run() {
 }
 
 // Source: js/events.js
-
 window.addEventListener( 'keypress', function ( event ) {
 
 	var key = event.keyCode;

@@ -1,3 +1,4 @@
+'use strict';
 
 function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 
@@ -120,7 +121,7 @@ FBOCompositor.prototype = {
 
 	step: function () {
 
-		for ( var i = 0; i < this.passes.length; i++ ) {
+		for ( let i = 0; i < this.passes.length; i++ ) {
 
 			this.updatePassDependencies();
 			var currPass = this.passes[ i ];
