@@ -14,17 +14,18 @@ loadingManager.onProgress = function ( item, loaded, total ) {
 
 };
 
+var SHADERS = {};
 var shaderLoader = new THREE.XHRLoader( loadingManager );
 shaderLoader.setResponseType( 'text' );
 shaderLoader.showStatus = true;
 
-shaderLoader.loadMultiple = function ( SHADER_CONTAINER, urlObj ) {
+shaderLoader.loadShaders = function ( SHADERS, urlObj ) {
 
 	Object.keys( urlObj ).forEach( function ( key ) {
 
 		shaderLoader.load( urlObj[ key ], function ( shader ) {
 
-			SHADER_CONTAINER[ key ] = shader;
+			SHADERS[ key ] = shader;
 
 		} );
 
@@ -32,8 +33,7 @@ shaderLoader.loadMultiple = function ( SHADER_CONTAINER, urlObj ) {
 
 };
 
-var SHADER_CONTAINER = {};
-shaderLoader.loadMultiple( SHADER_CONTAINER, {
+shaderLoader.loadShaders( SHADERS, {
 
 	passVert: 'shaders/pass.vert',
 	passFrag: 'shaders/pass.frag',
@@ -69,52 +69,50 @@ if ( !Detector.webgl ){
 	Detector.addGetWebGLMessage();
 }
 
-var container, stats;
-var scene, light, camera, cameraCtrl, renderer;
+var $$ = {};
+var CANVAS, STATS;
+var SCENE, CAMERA, CAMERA_CTRL, RENDERER;
 var WIDTH = window.innerWidth;
 var HEIGHT = window.innerHeight;
-var pixelRatio = window.devicePixelRatio || 1;
-var screenRatio = WIDTH / HEIGHT;
-var clock = new THREE.Clock();
+var PIXEL_RATIO = window.devicePIXEL_RATIO || 1;
+var SCREEN_RATIO = WIDTH / HEIGHT;
+var CLOCK = new THREE.Clock();
 
 // ---- Settings
-var sceneSettings = {
+var SCENE_SETTINGS = {
 
-	bgColor: 0x757575,
-	enableGridHelper: false,
-	enableAxisHelper: true,
+	bgColor: 0x383f4d,
 	pause: false,
+	enableGridHelper: false,
+	enableAxisHelper: false,
 	showFrameBuffer: true
 
 };
 
 // ---- Scene
-	container = document.getElementById( 'canvas-container' );
-	scene = new THREE.Scene();
+	CANVAS = document.getElementById( 'canvas' );
+	SCENE = new THREE.Scene();
 
 // ---- Camera
-	camera = new THREE.PerspectiveCamera( 70, screenRatio, 10, 100000 );
-	// camera orbit control
-	cameraCtrl = new THREE.OrbitControls( camera, container );
-
-	camera.position.set( -321.5847028300089, 215.28711637817776, 881.9719256352606 );
-	camera.quaternion.set( -0.12170374143462927, -0.340052864691943, 0.04443202001754455, 0.9314386960684689 );
-	cameraCtrl.center.set( 243.27711348462407, -17.799729328901254, 211.47633089038425 );
-
-	cameraCtrl.update();
+	CAMERA = new THREE.PerspectiveCamera( 70, SCREEN_RATIO, 10, 100000 );
+	CAMERA_CTRL = new THREE.OrbitControls( CAMERA, CANVAS );
+	CAMERA.position.set( -321.5847028300089, 215.28711637817776, 881.9719256352606 );
+	CAMERA.quaternion.set( -0.12170374143462927, -0.340052864691943, 0.04443202001754455, 0.9314386960684689 );
+	CAMERA_CTRL.center.set( 243.27711348462407, -17.799729328901254, 211.47633089038425 );
+	CAMERA_CTRL.update();
 
 // ---- Renderer
-	renderer = new THREE.WebGLRenderer( { antialias: false , alpha: true } );
-	renderer.setSize( WIDTH, HEIGHT );
-	renderer.setPixelRatio( pixelRatio );
-	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
-	renderer.autoClear = false;
+	RENDERER = new THREE.WebGLRenderer( { antialias: false , alpha: true } );
+	RENDERER.setSize( WIDTH, HEIGHT );
+	RENDERER.setPixelRatio( PIXEL_RATIO );
+	RENDERER.setClearColor( SCENE_SETTINGS.bgColor, 1.0 );
+	RENDERER.autoClear = false;
 
-	container.appendChild( renderer.domElement );
+	CANVAS.appendChild( RENDERER.domElement );
 
 // ---- Stats
-	stats = new Stats();
-	container.appendChild( stats.domElement );
+	STATS = new Stats();
+	CANVAS.appendChild( STATS.domElement );
 
 // ---- grid & axis helper
 	var gridHelper = new THREE.GridHelper( 600, 50 );
@@ -122,30 +120,16 @@ var sceneSettings = {
 	gridHelper.material.opacity = 0.5;
 	gridHelper.material.transparent = true;
 	gridHelper.position.y = -300;
-	scene.add( gridHelper );
+	SCENE.add( gridHelper );
 
 	var axisHelper = new THREE.AxisHelper( 1000 );
-	scene.add( axisHelper );
+	SCENE.add( axisHelper );
 
 	function updateHelpers() {
-		axisHelper.visible = sceneSettings.enableAxisHelper;
-		gridHelper.visible = sceneSettings.enableGridHelper;
+		axisHelper.visible = SCENE_SETTINGS.enableAxisHelper;
+		gridHelper.visible = SCENE_SETTINGS.enableGridHelper;
 	}
 	updateHelpers();
-
-// ---- Lights
-	// top light
-		// renderer.shadowMapEnabled = true;
-		// light = new THREE.DirectionalLight( 0xffffff, 1.0 );
-		// light.position.set( 0, 500, 0 );
-		// light.castShadow = true;
-		// light.shadowCameraVisible = true;
-		// light.shadowCameraNear = 10;
-		// light.shadowCameraFar = 1000;
-		// light.shadowMapWidth = 512;
-		// light.shadowMapHeight = 512;
-		//
-		// scene.add( light );
 
 // Source: js/gui.js
 /* exported gui, gui_display, gui_settings, initGui, updateGuiDisplay */
@@ -163,15 +147,14 @@ function initGui() {
 
 	gui_settings = gui.addFolder( 'Settings' );
 
-		gui_settings.addColor( sceneSettings, 'bgColor' ).name( 'Background' );
-		gui_settings.add( camera, 'fov', 25, 120, 1 ).name( 'FOV' );
+		gui_settings.addColor( SCENE_SETTINGS, 'bgColor' ).name( 'Background' );
+		gui_settings.add( CAMERA, 'fov', 25, 120, 1 ).name( 'FOV' );
 
-		gui_settings.add( uniformsInput.timeMult, 'value', 0.0, 0.5  , 0.01 ).name( 'Time Multiplier' );
-		gui_settings.add( uniformsInput.noiseFreq, 'value', 0.0, 3.0  , 0.01 ).name( 'Frequency' );
-		gui_settings.add( uniformsInput.speed, 'value', 0.0, 200.0, 0.01 ).name( 'Speed' );
-		gui_settings.add( psys.material.uniforms.size, 'value', 1.0, 20.0 , 0.01 ).name( 'Size' );
-		gui_settings.add( psys.material.uniforms.luminance, 'value', 0.0, 100.0, 0.01 ).name( 'Luminance' );
-		gui_settings.add( sceneSettings, 'showFrameBuffer' ).name( 'Show Frame Buffer' );
+		gui_settings.add( $$.uniformsInput.timeMult, 'value', 0.0, 0.5  , 0.01 ).name( 'Time Multiplier' );
+		gui_settings.add( $$.uniformsInput.noiseFreq, 'value', 0.0, 3.0  , 0.01 ).name( 'Frequency' );
+		gui_settings.add( $$.uniformsInput.speed, 'value', 0.0, 200.0, 0.01 ).name( 'Speed' );
+		gui_settings.add( $$.psys.material.uniforms.size, 'value', 1.0, 20.0 , 0.01 ).name( 'Size' );
+		gui_settings.add( SCENE_SETTINGS, 'showFrameBuffer' ).name( 'Show Frame Buffer' );
 
 
 	gui_display.open();
@@ -185,19 +168,19 @@ function initGui() {
 
 function updateSettings() {
 
-	camera.updateProjectionMatrix();
-	bgMat.color.setHex( sceneSettings.bgColor );
-	// renderer.setClearColor( sceneSettings.bgColor , 1.0 );
+	CAMERA.updateProjectionMatrix();
+	bgMat.color.setHex( SCENE_SETTINGS.bgColor );
+	// renderer.setClearColor( SCENE_SETTINGS.bgColor , 1.0 );
 
 }
 
-	function updateGuiDisplay() {
+function updateGuiDisplay() {
 
-		gui_display.__controllers.forEach( function ( controller ) {
-			controller.updateDisplay();
-		} );
+	gui_display.__controllers.forEach( function ( controller ) {
+		controller.updateDisplay();
+	} );
 
-	}
+}
 
 // Source: js/FBOCompositor.js
 function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
@@ -227,8 +210,8 @@ function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 				value: null
 			}
 		},
-		vertexShader: SHADER_CONTAINER.passVert,
-		fragmentShader: SHADER_CONTAINER.passFrag,
+		vertexShader: SHADERS.passVert,
+		fragmentShader: SHADERS.passFrag,
 		blending: THREE.NoBlending
 
 	} );
@@ -236,7 +219,6 @@ function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 	this.passes = [];
 
 	// sorting
-	this.currentStep = 0;
 	this.totalSortStep = ( Math.log2( this.bufferSize*this.bufferSize ) * ( Math.log2( this.bufferSize * this.bufferSize ) + 1 ) ) / 2;
 	this.sortPass = -1;
 	this.sortStage = -1;
@@ -273,10 +255,11 @@ FBOCompositor.prototype = {
 
 	},
 
-	addPass: function ( name, fragmentShader, inputTargets ) {
+	addPass: function ( name, fragmentShader, inputTargets, uniforms ) {
 
 		var pass = new FBOPass( name, this.passThruVertexShader, fragmentShader, this.bufferSize );
 		pass.inputTargetList = inputTargets  || {};
+		pass.attachUniform( uniforms || {} );
 		this.passes.push( pass );
 		return pass;
 
@@ -331,8 +314,7 @@ FBOCompositor.prototype = {
 				// copy position buffer to sort buffer
 				this.renderInitialBuffer( this.getPass( 'positionPass' ).getRenderTarget(), currPass.name );
 
-				// sortPass
-				for ( var s = 0; s <= this.totalSortStep; s ++ ) {
+				for ( let s = 0; s <= this.totalSortStep; s ++ ) {
 
 					this.sortPass --;
 			      if ( this.sortPass  < 0 ) {
@@ -350,15 +332,11 @@ FBOCompositor.prototype = {
 					this._renderPass( currPass.getShader(), currPass.getRenderTarget() );
 					currPass.swapBuffer();
 
-					this.currentStep ++;
-
 				}
 
-				// if ( this.currentStep >= this.totalSortStep ) {
-					this.currentStep = 0;
-					this.sortPass = -1;
-					this.sortStage = -1;
-				// }
+				// reset
+				this.sortPass = -1;
+				this.sortStage = -1;
 
 			} else {
 
@@ -428,7 +406,7 @@ FBOPass.prototype = {
 	swapBuffer: function () {
 
 		this.uniforms.mirrorBuffer.value = this.doubleBuffer[ this.currentBuffer ];
-		this.currentBuffer ^= 1; // toggle between 0 and 1
+		this.currentBuffer ^= 1;
 
 	},
 	generateRenderTarget: function () {
@@ -458,7 +436,7 @@ FBOPass.prototype = {
 
 		} );
 
-	}
+	},
 
 };
 
@@ -470,7 +448,7 @@ function HUD( renderer ) {
 	var hudHeight = 2.0 / 3.0; // 2.0 = full screen size
 	var hudWidth = hudHeight;
 
-	this.HUDCam = new THREE.OrthographicCamera( -screenRatio, screenRatio, 1, -1, 1, 10 );
+	this.HUDCam = new THREE.OrthographicCamera( -SCREEN_RATIO, SCREEN_RATIO, 1, -1, 1, 10 );
 	this.HUDCam.position.z = 5;
 
 	this.hudMaterial = new THREE.ShaderMaterial( {
@@ -481,8 +459,8 @@ function HUD( renderer ) {
 				value: this.tTarget
 			}
 		},
-		vertexShader: SHADER_CONTAINER.hudVert,
-		fragmentShader: SHADER_CONTAINER.hudFrag
+		vertexShader: SHADERS.hudVert,
+		fragmentShader: SHADERS.hudFrag
 
 	} );
 
@@ -519,8 +497,8 @@ HUD.prototype = {
 	update: function () { // call on window resize
 
 		// match aspect ratio to prevent distortion
-		this.HUDCam.left = -screenRatio;
-		this.HUDCam.right = screenRatio;
+		this.HUDCam.left = -SCREEN_RATIO;
+		this.HUDCam.right = SCREEN_RATIO;
 
 		this.HUDMesh.position.x = this.HUDCam.left + this.HUDMargin;
 		this.HUDMesh.position.y = this.HUDCam.bottom + this.HUDMargin;
@@ -560,6 +538,8 @@ function ParticleSystem( _bufferSize ) {
 	delete this.ndUV;
 	delete this.position;
 
+	this.pScene = new THREE.Scene();
+
 	this.material = new THREE.ShaderMaterial( {
 
 		attributes: {
@@ -573,10 +553,6 @@ function ParticleSystem( _bufferSize ) {
 			size: {
 				type: 'f',
 				value: 3.0
-			},
-			luminance: {
-				type: 'f',
-				value: 50.0
 			},
 			particleTexture: {
 				type: 't',
@@ -604,8 +580,8 @@ function ParticleSystem( _bufferSize ) {
 			}
 		},
 
-		vertexShader: SHADER_CONTAINER.particleVert,
-		fragmentShader: SHADER_CONTAINER.particleFrag,
+		vertexShader: SHADERS.particleVert,
+		fragmentShader: SHADERS.particleFrag,
 
 		transparent: true,
 		depthTest: false,
@@ -633,238 +609,262 @@ function ParticleSystem( _bufferSize ) {
 
 	this.particleMesh = new THREE.PointCloud( this.geom, this.material );
 	this.particleMesh.frustumCulled = false;
-	scene.add( this.particleMesh );
 
 }
 
-ParticleSystem.prototype.setPositionBuffer = function ( inputBuffer ) {
+ParticleSystem.prototype = {
 
-	this.material.uniforms.positionBuffer.value = inputBuffer;
 
-};
+	setPositionBuffer: function ( inputBuffer ) {
 
-ParticleSystem.prototype.generatePositionTexture = function () {
+		this.material.uniforms.positionBuffer.value = inputBuffer;
 
-	var data = new Float32Array( this.bufferSize * this.bufferSize * 4 );
+	},
 
-	var fieldSize = 25.0;
+	generatePositionTexture: function () {
 
-	for ( var i = 0; i < data.length; i += 4 ) {
+		var data = new Float32Array( this.bufferSize * this.bufferSize * 4 );
 
-		data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
-		data[ i + 3 ] = THREE.Math.randFloat( 0, 50 ); // initial particle life, todo: move to separate texture
+		var fieldSize = 25.0;
+
+		for ( var i = 0; i < data.length; i += 4 ) {
+
+			data[ i + 0 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
+			data[ i + 1 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
+			data[ i + 2 ] = THREE.Math.randFloat( -fieldSize, fieldSize );
+			data[ i + 3 ] = THREE.Math.randFloat( 0, 50 ); // initial particle life, todo: move to separate texture
+
+		}
+
+		var texture = new THREE.DataTexture( data, this.bufferSize, this.bufferSize, THREE.RGBAFormat, THREE.FloatType );
+		texture.minFilter = THREE.NearestFilter;
+		texture.magFilter = THREE.NearestFilter;
+		texture.needsUpdate = true;
+
+		return texture;
+
+	},
+
+
+	// opacity map stuff
+
+	init: function () {
+
+		// cam
+		this.lightCam = new THREE.OrthographicCamera( -600, 1000, 500, -500, 10, 1000 );
+		this.lightCam.position.set( 500, 500, 0 );
+		this.lightCam.rotateX( -Math.PI * 0.5 );
+		this.lightCam.updateMatrixWorld();
+		this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
+		this.lightCam.updateProjectionMatrix();
+
+		// this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
+		// SCENE.add( this.lightCamHelper );
+
+		// uniform -> lightMatrix
+		this.lightMatrix = new THREE.Matrix4();
+		this.lightMatrix.set(
+			0.5, 0.0, 0.0, 0.5,
+			0.0, 0.5, 0.0, 0.5,
+			0.0, 0.0, 0.5, 0.5,
+			0.0, 0.0, 0.0, 1.0
+		);
+		this.lightMatrix.multiply( this.lightCam.projectionMatrix );
+		this.lightMatrix.multiply( this.lightCam.matrixWorldInverse );
+
+		this.lightScene = new THREE.Scene();
+		this.lightScene.add( this.particleMesh );
+
+		var downSample = 1.0;
+		this.opacityMap = new THREE.WebGLRenderTarget( this.bufferSize * downSample, this.bufferSize * downSample, {
+
+			wrapS: THREE.ClampToEdgeWrapping,
+			wrapT: THREE.ClampToEdgeWrapping,
+			minFilter: THREE.NearestFilter,
+			magFilter: THREE.NearestFilter,
+			format: THREE.RGBAFormat,
+			type: THREE.FloatType,
+			stencilBuffer: false,
+			depthBuffer: false,
+
+		} );
+
+		this.numSlices = 32;
+		this.pCount = this.bufferSize * this.bufferSize;
+		this.pPerSlice = this.pCount / this.numSlices;
+		console.log( this.pCount, this.pPerSlice );
+
+		this.material.uniforms.lightMatrix.value = this.lightMatrix;
+		this.material.uniforms.opacityMap.value = this.opacityMap;
+
+		this.opacityMaterial = new THREE.ShaderMaterial( {
+
+			attributes: {
+				here: {
+					type: 'v3',
+					value: null
+				}
+			},
+
+			uniforms: {
+				size: {
+					type: 'f',
+					value: 3.0
+				},
+				luminance: {
+					type: 'f',
+					value: 50.0
+				},
+				particleTexture: {
+					type: 't',
+					value: TEXTURES.electric
+				},
+				positionBuffer: {
+					type: 't',
+					value: null
+				},
+			},
+
+			vertexShader: SHADERS.opacityMapVert,
+			fragmentShader: SHADERS.opacityMapFrag,
+
+			transparent: true,
+			depthTest: false,
+			depthWrite: false,
+
+			////
+			blending: THREE.CustomBlending,
+			blendEquation: THREE.AddEquation,
+
+			blendSrcAlpha: THREE.SrcAlphaFactor,
+			blendDstAlpha: THREE.OneMinusSrcAlphaFactor
+
+		} );
+
+		this.pScene.add( this.particleMesh );
+
+	},
+
+	render: function ( renderer, camera ) {
+
+		// clear opacityMap buffer
+		renderer.setClearColor( 0.0, 1.0 );
+		renderer.clearTarget( this.opacityMap );
+		renderer.setClearColor( SCENE_SETTINGS.bgColor, 1.0 );
+
+
+		// set position buffer
+		for ( let i = 0; i < this.numSlices; i++ ) {
+
+			// set geometry draw calls
+			this.geom.drawcalls[ 0 ] = {
+				start: 0,
+				count: this.pPerSlice,
+				index: i * this.pPerSlice
+			};
+
+			// render to screen
+			this.particleMesh.material = this.material;
+			renderer.render( this.pScene, camera );
+
+			// render opacityMap
+			this.opacityMaterial.uniforms = this.material.uniforms;
+			this.particleMesh.material = this.opacityMaterial;
+			renderer.render( this.pScene, this.lightCam, this.opacityMap );
+
+		}
+
+		// reset render target
+		renderer.setRenderTarget( this.dummyRenderTarget );
+
+	},
+
+	computeHalfAngle: function( camera ) {
+
+		var eye = new THREE.Vector3( 0, 0, -1 );
+		var light = new THREE.Vector3( 0, -1, 0 );
+		var hf = new THREE.Vector3();
+
+		eye.applyQuaternion( camera.quaternion );
+		eye.normalize();
+		light.normalize();
+
+		if ( eye.dot( light ) > 0.0 ) {
+
+			hf.addVectors( eye, light );
+			this.material.blendSrc = THREE.OneFactor
+			this.material.blendDst = THREE.OneMinusSrcAlphaFactor
+
+		} else {
+
+			eye.multiplyScalar( -1 );
+			hf.addVectors( eye, light );
+			this.material.blendSrc = THREE.OneMinusDstAlphaFactor
+			this.material.blendDst = THREE.OneFactor
+
+		}
+
+		hf.normalize();
+		this.halfAngle = hf;
+
+		return hf;
 
 	}
-
-	var texture = new THREE.DataTexture( data, this.bufferSize, this.bufferSize, THREE.RGBAFormat, THREE.FloatType );
-	texture.minFilter = THREE.NearestFilter;
-	texture.magFilter = THREE.NearestFilter;
-	texture.needsUpdate = true;
-
-	return texture;
-
-};
-
-
-// opacity map stuff
-
-ParticleSystem.prototype.init = function () {
-
-	// cam
-	this.lightCam = new THREE.OrthographicCamera( -600, 1000, 500, -500, 10, 1000 );
-	this.lightCam.position.set( 500, 500, 0 );
-	this.lightCam.rotateX( -Math.PI * 0.5 );
-	this.lightCam.updateMatrixWorld();
-	this.lightCam.matrixWorldInverse.getInverse( this.lightCam.matrixWorld );
-	this.lightCam.updateProjectionMatrix();
-
-	// this.lightCamHelper = new THREE.CameraHelper( this.lightCam );
-	// scene.add( this.lightCamHelper );
-
-	// uniform -> lightMatrix
-	this.lightMatrix = new THREE.Matrix4();
-	this.lightMatrix.set(
-		0.5, 0.0, 0.0, 0.5,
-		0.0, 0.5, 0.0, 0.5,
-		0.0, 0.0, 0.5, 0.5,
-		0.0, 0.0, 0.0, 1.0
-	);
-	this.lightMatrix.multiply( this.lightCam.projectionMatrix );
-	this.lightMatrix.multiply( this.lightCam.matrixWorldInverse );
-
-	this.lightScene = new THREE.Scene();
-	this.lightScene.add( this.particleMesh );
-
-	var downSample = 1.0;
-	this.opacityMap = new THREE.WebGLRenderTarget( this.bufferSize * downSample, this.bufferSize * downSample, {
-
-		wrapS: THREE.ClampToEdgeWrapping,
-		wrapT: THREE.ClampToEdgeWrapping,
-		minFilter: THREE.NearestFilter,
-		magFilter: THREE.NearestFilter,
-		format: THREE.RGBAFormat,
-		type: THREE.FloatType,
-		stencilBuffer: false,
-		depthBuffer: false,
-
-	} );
-
-	this.numSlices = 32;
-	this.pCount = this.bufferSize * this.bufferSize;
-	this.pPerSlice = this.pCount / this.numSlices;
-	console.log( this.pCount, this.pPerSlice );
-
-	this.material.uniforms.lightMatrix.value = this.lightMatrix;
-	this.material.uniforms.opacityMap.value = this.opacityMap;
-
-	this.opacityMaterial = new THREE.ShaderMaterial( {
-
-		attributes: {
-			here: {
-				type: 'v3',
-				value: null
-			}
-		},
-
-		uniforms: {
-			size: {
-				type: 'f',
-				value: 3.0
-			},
-			luminance: {
-				type: 'f',
-				value: 50.0
-			},
-			particleTexture: {
-				type: 't',
-				value: TEXTURES.electric
-			},
-			positionBuffer: {
-				type: 't',
-				value: null
-			},
-		},
-
-		vertexShader: SHADER_CONTAINER.opacityMapVert,
-		fragmentShader: SHADER_CONTAINER.opacityMapFrag,
-
-		transparent: true,
-		depthTest: false,
-		depthWrite: false,
-
-		////
-		blending: THREE.CustomBlending,
-		blendEquation: THREE.AddEquation,
-
-		blendSrcAlpha: THREE.SrcAlphaFactor,
-		blendDstAlpha: THREE.OneMinusSrcAlphaFactor
-
-	} );
-
-	scene.add( this.particleMesh );
-
-};
-
-ParticleSystem.prototype.render = function ( renderer ) {
-
-	// clear opacityMap buffer
-	renderer.setClearColor( 0.0, 1.0 );
-	renderer.clearTarget( this.opacityMap );
-	renderer.setClearColor( sceneSettings.bgColor, 1.0 );
-
-
-	// set position buffer
-	for ( let i = 0; i < this.numSlices; i++ ) {
-
-		// set geometry draw calls
-		this.geom.drawcalls[ 0 ] = {
-			start: 0,
-			count: this.pPerSlice,
-			index: i * this.pPerSlice
-		};
-
-		// render to screen
-
-		this.particleMesh.material = this.material;
-		// !todo: adding or removing to scene is slow, use visible = false
-		// scene.add( this.particleMesh );
-		renderer.render( scene, camera );
-
-
-		// render opacityMap
-
-		this.opacityMaterial.uniforms = this.material.uniforms;
-
-		this.particleMesh.material = this.opacityMaterial;
-
-		// this.lightScene.add( this.particleMesh );
-		// renderer.render( this.lightScene, this.lightCam, this.opacityMap );
-		renderer.render( scene, this.lightCam, this.opacityMap );
-
-	}
-
-	// need to reset render target
-	renderer.setRenderTarget( this.dummyRenderTarget );
 
 };
 
 // Source: js/main.js
-/* exported  main */
-/* global FBOC, uniformsInput, sortUniforms, SHADER_CONTAINER, ParticleSystem, psys, FBOCompositor, HUD, renderer */
-
 function main() {
 
-	window.uniformsInput = {
+	initParticleSystem();
+
+	$$.hud = new HUD( RENDERER );
+
+	initBackground();
+
+	initGui();
+
+}
+
+
+function initParticleSystem() {
+
+	$$.uniformsInput = {
 		time     : { type: 'f', value: 0.0 },
 		timeMult : { type: 'f', value: 0.2 },
 		noiseFreq: { type: 'f', value: 1.3 },
 		speed    : { type: 'f', value: 23.2 }
 	};
 
-	var numParSq = 256;
-	window.FBOC = new FBOCompositor( renderer, numParSq, SHADER_CONTAINER.passVert );
-	FBOC.addPass( 'velocityPass', SHADER_CONTAINER.velocity, { positionBuffer: 'positionPass' } );
-	FBOC.addPass( 'positionPass', SHADER_CONTAINER.position, { velocityBuffer: 'velocityPass' } );
-
-	window.sortUniforms = {
+	$$.sortUniforms = {
 		pass: { type: 'f', value: -1 },
 		stage: { type: 'f', value: -1 },
 		lookAt: { type: 'v3', value: new THREE.Vector3( 0, 0, -1 ) },
 		halfAngle: { type: 'v3', value: new THREE.Vector3() },
 		sortOrder: { type: 'f', value: 1 }
 	};
-	FBOC.addPass( 'sortPass', SHADER_CONTAINER.sort );
-	FBOC.getPass( 'sortPass' ).attachUniform( sortUniforms );
 
 
-	FBOC.getPass( 'velocityPass' ).attachUniform( uniformsInput );
-	FBOC.getPass( 'positionPass' ).attachUniform( uniformsInput );
+	var numParSq = 256;
+	$$.FBOC = new FBOCompositor( RENDERER, numParSq, SHADERS.passVert );
+	$$.FBOC.addPass( 'velocityPass', SHADERS.velocity, { positionBuffer: 'positionPass' }, $$.uniformsInput );
+	$$.FBOC.addPass( 'positionPass', SHADERS.position, { velocityBuffer: 'velocityPass' }, $$.uniformsInput );
+	$$.FBOC.addPass( 'sortPass', SHADERS.sort, {}, $$.sortUniforms );
 
-	window.psys = new ParticleSystem( numParSq );
-	psys.init();
+	$$.psys = new ParticleSystem( numParSq );
+	$$.psys.init();
 
-	var initialPositionDataTexture = psys.generatePositionTexture();
-	FBOC.renderInitialBuffer( initialPositionDataTexture, 'positionPass' );
+	var initialPositionDataTexture = $$.psys.generatePositionTexture();
+	$$.FBOC.renderInitialBuffer( initialPositionDataTexture, 'positionPass' );
 
+}
 
-	// window.bgMesh = new THREE.Mesh(
-	// 	// new THREE.BoxGeometry( 1500, 1500, 1500 ),
-	// 	new THREE.SphereGeometry( 1000, 64, 64 ),
-	// 	new THREE.MeshBasicMaterial( {
-	// 		side: THREE.BackSide,
-	// 		color: 0x101010
-	// 	} )
-	// );
+function initBackground() {
 
-	// scene.add( bgMesh );
+	$$.bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
+	$$.bgMat = new THREE.MeshBasicMaterial( {
 
-	// test quad Background
-	window.bgGeo = new THREE.PlaneBufferGeometry( 2, 2 );
-	window.bgMat = new THREE.MeshBasicMaterial( {
-
-		color: 0x757575,
+		color: SCENE_SETTINGS.bgColor,
 		side: THREE.DoubleSide,
 		transparent: true,
 
@@ -874,107 +874,27 @@ function main() {
 		blendDst: THREE.OneFactor
 
 	} );
-	window.bgMesh = new THREE.Mesh( bgGeo, bgMat );
-	window.bgScene = new THREE.Scene();
-	window.bgCam = new THREE.Camera();
-	bgScene.add( bgMesh );
-
-
-
-	window.hud = new HUD( renderer );
-
-	initGui();
+	$$.bgMesh = new THREE.Mesh( $$.bgGeo, $$.bgMat );
+	$$.bgScene = new THREE.Scene();
+	$$.bgCam = new THREE.Camera();
+	$$.bgScene.add( $$.bgMesh );
 
 }
 
 // Source: js/run.js
-/* exported run */
-var eyeHelper = new THREE.ArrowHelper(
-	new THREE.Vector3( 1, 1, 0 ).normalize(),
-	new THREE.Vector3( 0, 0, 0 ),
-	500,
-	0x0
-);
-
-scene.add( eyeHelper );
-
-var lightHelper = new THREE.ArrowHelper(
-	new THREE.Vector3( 1, 1, 0 ).normalize(),
-	new THREE.Vector3( 0, 0, 0 ),
-	500,
-	0xff00ff
-);
-scene.add( lightHelper );
-
-var halfVectorHelper = new THREE.ArrowHelper(
-	new THREE.Vector3( 1, 1, 0 ).normalize(),
-	new THREE.Vector3( 0, 0, 0 ),
-	500,
-	0xff8800
-);
-scene.add( halfVectorHelper );
-
+/* jshint -W117 */
+// !todo: fix  particle flickering because velocity buffer not sync with sorted position buffer
+// !todo: when rotate mesh, sorting axis is wrong
+// !todo: fix particle stop sorting when pause and changing camera angle
 
 function update() {
 
-	uniformsInput.time.value = clock.getElapsedTime();
+	$$.uniformsInput.time.value = CLOCK.getElapsedTime();
 
-
-	var eye = new THREE.Vector3( 0, 0, -1 );
-	eye.applyQuaternion( camera.quaternion );
-	eye.normalize();
-
-	var light = new THREE.Vector3( 0, -1, 0 );
-	light.normalize();
-
-
-	var hf = new THREE.Vector3();
-
-	if ( eye.dot( light ) > 0.0 ) {
-
-		hf.addVectors( eye, light );
-		psys.material.blendSrc = THREE.OneFactor
-		psys.material.blendDst = THREE.OneMinusSrcAlphaFactor
-
-	} else {
-
-		eye.multiplyScalar( -1 );
-		hf.addVectors( eye, light );
-		psys.material.blendSrc = THREE.OneMinusDstAlphaFactor
-		psys.material.blendDst = THREE.OneFactor
-
-	}
-
-
-	hf.normalize();
-	sortUniforms.halfAngle.value = hf;
-
-
-	// eyeHelper.position.copy( camera.position );
-	eyeHelper.setDirection( eye );
-	lightHelper.setDirection( light );
-	halfVectorHelper.setDirection( hf );
-
-
-
-	FBOC.step();
-
-	// psys.setPositionBuffer( FBOC.getPass( 'positionPass' ).getRenderTarget() );
-
-	// sortPass = sorted position
-	psys.setPositionBuffer( FBOC.getPass( 'sortPass' ).getRenderTarget() );
-
-	psys.opacityMaterial.uniforms.positionBuffer.value = FBOC.getPass( 'sortPass' ).getRenderTarget();
-
-
-	// renderer.render( psys.lightScene, psys.lightCam, psys.opacityMap );
-
-	// !todo: fix bug particle flickering because velocity buffer not sync with sorted position buffer
-	// psys.material.uniforms.velocityBuffer.value = FBOC.getPass( 'velocityPass' ).getRenderTarget();
-
-	// !todo: when rotate mesh, sorted axis is wrong
-
-	// psys.particleMesh.rotateY( clock.getDelta() );
+	$$.psys.computeHalfAngle( CAMERA );
+	$$.sortUniforms.halfAngle.value = $$.psys.halfAngle;
+	$$.FBOC.step();
+	$$.psys.setPositionBuffer( $$.FBOC.getPass( 'sortPass' ).getRenderTarget() );
 
 	updateGuiDisplay();
 
@@ -986,27 +906,25 @@ function run() {
 
 	requestAnimationFrame( run );
 
-	renderer.setClearColor( 0, 0.0 );
-	renderer.clear();
+	RENDERER.setClearColor( 0, 0.0 );
+	RENDERER.clear();
 
-	// !todo: fix particle stop sorting when pause and changing camera angle
-	if ( !sceneSettings.pause ) {
+	if ( !SCENE_SETTINGS.pause ) {
 		update();
 	}
 
-	// renderer.render( scene, camera );
+	RENDERER.render( SCENE, CAMERA );
 
-	psys.render( renderer, scene, camera );
+	$$.psys.render( RENDERER, CAMERA );
 
-	renderer.render( bgScene, bgCam );
+	RENDERER.render( $$.bgScene, $$.bgCam );
 
-	if ( sceneSettings.showFrameBuffer ) {
-		// hud.setInputTexture( FBOC.getPass( 'sortPass' ).getRenderTarget() );
-		hud.setInputTexture( psys.opacityMap );
-		hud.render();
+	if ( SCENE_SETTINGS.showFrameBuffer ) {
+		$$.hud.setInputTexture( $$.psys.opacityMap );
+		$$.hud.render();
 	}
 
-	stats.update();
+	STATS.update();
 
 }
 
@@ -1017,15 +935,15 @@ window.addEventListener( 'keypress', function ( event ) {
 
 	switch( key ) {
 
-		case 32: sceneSettings.pause = !sceneSettings.pause;
+		case 32: SCENE_SETTINGS.pause = !SCENE_SETTINGS.pause;
 		break;
 
 		case 65:/*A*/
-		case 97:/*a*/ sceneSettings.enableGridHelper = !sceneSettings.enableGridHelper; updateHelpers();
+		case 97:/*a*/ SCENE_SETTINGS.enableGridHelper = !SCENE_SETTINGS.enableGridHelper; updateHelpers();
 		break;
 
 		case 83 :/*S*/
-		case 115:/*s*/ sceneSettings.enableAxisHelper = !sceneSettings.enableAxisHelper; updateHelpers();
+		case 115:/*s*/ SCENE_SETTINGS.enableAxisHelper = !SCENE_SETTINGS.enableAxisHelper; updateHelpers();
 		break;
 
 	}
@@ -1053,16 +971,16 @@ function onWindowResize() {
 	WIDTH = window.innerWidth;
 	HEIGHT = window.innerHeight;
 
-	pixelRatio = window.devicePixelRatio || 1;
-	screenRatio = WIDTH / HEIGHT;
+	PIXEL_RATIO = window.devicePIXEL_RATIO || 1;
+	SCREEN_RATIO = WIDTH / HEIGHT;
 
-	camera.aspect = screenRatio;
-	camera.updateProjectionMatrix();
+	CAMERA.aspect = SCREEN_RATIO;
+	CAMERA.updateProjectionMatrix();
 
-	renderer.setSize( WIDTH, HEIGHT );
-	renderer.setPixelRatio( pixelRatio );
+	RENDERER.setSize( WIDTH, HEIGHT );
+	RENDERER.setPixelRatio( PIXEL_RATIO );
 
-	hud.update();
+	$$.hud.update();
 
 }
 

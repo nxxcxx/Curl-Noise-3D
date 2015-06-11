@@ -27,8 +27,8 @@ function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 				value: null
 			}
 		},
-		vertexShader: SHADER_CONTAINER.passVert,
-		fragmentShader: SHADER_CONTAINER.passFrag,
+		vertexShader: SHADERS.passVert,
+		fragmentShader: SHADERS.passFrag,
 		blending: THREE.NoBlending
 
 	} );
@@ -36,7 +36,6 @@ function FBOCompositor( renderer, bufferSize, passThruVertexShader ) {
 	this.passes = [];
 
 	// sorting
-	this.currentStep = 0;
 	this.totalSortStep = ( Math.log2( this.bufferSize*this.bufferSize ) * ( Math.log2( this.bufferSize * this.bufferSize ) + 1 ) ) / 2;
 	this.sortPass = -1;
 	this.sortStage = -1;
@@ -73,10 +72,11 @@ FBOCompositor.prototype = {
 
 	},
 
-	addPass: function ( name, fragmentShader, inputTargets ) {
+	addPass: function ( name, fragmentShader, inputTargets, uniforms ) {
 
 		var pass = new FBOPass( name, this.passThruVertexShader, fragmentShader, this.bufferSize );
 		pass.inputTargetList = inputTargets  || {};
+		pass.attachUniform( uniforms || {} );
 		this.passes.push( pass );
 		return pass;
 
@@ -131,8 +131,7 @@ FBOCompositor.prototype = {
 				// copy position buffer to sort buffer
 				this.renderInitialBuffer( this.getPass( 'positionPass' ).getRenderTarget(), currPass.name );
 
-				// sortPass
-				for ( var s = 0; s <= this.totalSortStep; s ++ ) {
+				for ( let s = 0; s <= this.totalSortStep; s ++ ) {
 
 					this.sortPass --;
 			      if ( this.sortPass  < 0 ) {
@@ -150,15 +149,11 @@ FBOCompositor.prototype = {
 					this._renderPass( currPass.getShader(), currPass.getRenderTarget() );
 					currPass.swapBuffer();
 
-					this.currentStep ++;
-
 				}
 
-				// if ( this.currentStep >= this.totalSortStep ) {
-					this.currentStep = 0;
-					this.sortPass = -1;
-					this.sortStage = -1;
-				// }
+				// reset
+				this.sortPass = -1;
+				this.sortStage = -1;
 
 			} else {
 
@@ -228,7 +223,7 @@ FBOPass.prototype = {
 	swapBuffer: function () {
 
 		this.uniforms.mirrorBuffer.value = this.doubleBuffer[ this.currentBuffer ];
-		this.currentBuffer ^= 1; // toggle between 0 and 1
+		this.currentBuffer ^= 1;
 
 	},
 	generateRenderTarget: function () {
@@ -258,6 +253,6 @@ FBOPass.prototype = {
 
 		} );
 
-	}
+	},
 
 };

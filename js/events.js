@@ -6,15 +6,15 @@ window.addEventListener( 'keypress', function ( event ) {
 
 	switch( key ) {
 
-		case 32: sceneSettings.pause = !sceneSettings.pause;
+		case 32: SCENE_SETTINGS.pause = !SCENE_SETTINGS.pause;
 		break;
 
 		case 65:/*A*/
-		case 97:/*a*/ sceneSettings.enableGridHelper = !sceneSettings.enableGridHelper; updateHelpers();
+		case 97:/*a*/ SCENE_SETTINGS.enableGridHelper = !SCENE_SETTINGS.enableGridHelper; updateHelpers();
 		break;
 
 		case 83 :/*S*/
-		case 115:/*s*/ sceneSettings.enableAxisHelper = !sceneSettings.enableAxisHelper; updateHelpers();
+		case 115:/*s*/ SCENE_SETTINGS.enableAxisHelper = !SCENE_SETTINGS.enableAxisHelper; updateHelpers();
 		break;
 
 	}
@@ -42,15 +42,15 @@ function onWindowResize() {
 	WIDTH = window.innerWidth;
 	HEIGHT = window.innerHeight;
 
-	pixelRatio = window.devicePixelRatio || 1;
-	screenRatio = WIDTH / HEIGHT;
+	PIXEL_RATIO = window.devicePIXEL_RATIO || 1;
+	SCREEN_RATIO = WIDTH / HEIGHT;
 
-	camera.aspect = screenRatio;
-	camera.updateProjectionMatrix();
+	CAMERA.aspect = SCREEN_RATIO;
+	CAMERA.updateProjectionMatrix();
 
-	renderer.setSize( WIDTH, HEIGHT );
-	renderer.setPixelRatio( pixelRatio );
+	RENDERER.setSize( WIDTH, HEIGHT );
+	RENDERER.setPixelRatio( PIXEL_RATIO );
 
-	hud.update();
+	$$.hud.update();
 
 }

@@ -7,7 +7,7 @@ function HUD( renderer ) {
 	var hudHeight = 2.0 / 3.0; // 2.0 = full screen size
 	var hudWidth = hudHeight;
 
-	this.HUDCam = new THREE.OrthographicCamera( -screenRatio, screenRatio, 1, -1, 1, 10 );
+	this.HUDCam = new THREE.OrthographicCamera( -SCREEN_RATIO, SCREEN_RATIO, 1, -1, 1, 10 );
 	this.HUDCam.position.z = 5;
 
 	this.hudMaterial = new THREE.ShaderMaterial( {
@@ -18,8 +18,8 @@ function HUD( renderer ) {
 				value: this.tTarget
 			}
 		},
-		vertexShader: SHADER_CONTAINER.hudVert,
-		fragmentShader: SHADER_CONTAINER.hudFrag
+		vertexShader: SHADERS.hudVert,
+		fragmentShader: SHADERS.hudFrag
 
 	} );
 
@@ -56,8 +56,8 @@ HUD.prototype = {
 	update: function () { // call on window resize
 
 		// match aspect ratio to prevent distortion
-		this.HUDCam.left = -screenRatio;
-		this.HUDCam.right = screenRatio;
+		this.HUDCam.left = -SCREEN_RATIO;
+		this.HUDCam.right = SCREEN_RATIO;
 
 		this.HUDMesh.position.x = this.HUDCam.left + this.HUDMargin;
 		this.HUDMesh.position.y = this.HUDCam.bottom + this.HUDMargin;

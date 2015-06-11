@@ -1,6 +1,5 @@
 
 uniform sampler2D particleTexture;
-uniform float luminance;
 uniform float sortOrder;
 
 varying vec3 vVel;
@@ -53,26 +52,27 @@ void main() {
 
 	float particleAlpha = 0.25;
 
-	// float distanceFromCenter = distance( gl_PointCoord.xy, vec2( 0.5, 0.5 ) );
-	// if ( distanceFromCenter > 0.5 ) discard;
-	// float alpha = clamp( 1.0 - distanceFromCenter * 2.0, 0.0, 1.0 ) * particleAlpha;
-   // alpha = texture2D( particleTexture, gl_PointCoord.xy ).a;
+	float distanceFromCenter = distance( gl_PointCoord.xy, vec2( 0.5, 0.5 ) );
+	if ( distanceFromCenter > 0.5 ) discard;
+	float alpha = clamp( 1.0 - distanceFromCenter * 2.0, 0.0, 1.0 ) * particleAlpha;
+
+   // float alpha = texture2D( particleTexture, gl_PointCoord.xy ).a;
 
    // blur along direction of velocity
-   float blurScale = 0.08;
-   const int nSamples = 32;
-   float alpha = texture2D( particleTexture, gl_PointCoord.xy ).a;
-   for (int i = 1; i < nSamples; ++i) {
-      vec2 offset = blurDirection * blurScale * (float(i) / float(nSamples - 1) - 0.5);
-      alpha += texture2D( particleTexture, gl_PointCoord.xy + offset).a;
-   }
-   alpha /= float( nSamples );
-   alpha *= particleAlpha;
+      // float blurScale = 0.08;
+      // const int nSamples = 32;
+      // float alpha = texture2D( particleTexture, gl_PointCoord.xy ).a;
+      // for (int i = 1; i < nSamples; ++i) {
+      //    vec2 offset = blurDirection * blurScale * (float(i) / float(nSamples - 1) - 0.5);
+      //    alpha += texture2D( particleTexture, gl_PointCoord.xy + offset).a;
+      // }
+      // alpha /= float( nSamples );
+      // alpha *= particleAlpha;
    //
-   
+
 
 	// vec3 particleColor = vec3( 1.0, 0.2, 0.3 );
-	vec3 particleColor = heatmapGradient( smoothstep( -0.1, 1.3, vLife ) );
+	vec3 particleColor = heatmapGradient( smoothstep( -0.1, 1.3, vLife ) ) * 1.7;
 
 	// current slice accumulated shadow intensity
 	float accLightScale = 0.8;

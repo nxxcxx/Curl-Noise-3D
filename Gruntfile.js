@@ -89,7 +89,7 @@ module.exports = function ( grunt ) {
 	} );
 
 	// Load the plugin that provides the tasks.
-	grunt.loadNpmTasks( 'grunt-browserify' );
+	// grunt.loadNpmTasks( 'grunt-browserify' );
 	grunt.loadNpmTasks( 'grunt-contrib-concat' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
 	grunt.loadNpmTasks( 'grunt-contrib-watch' );

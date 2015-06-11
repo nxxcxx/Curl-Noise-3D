@@ -13,17 +13,18 @@ loadingManager.onProgress = function ( item, loaded, total ) {
 
 };
 
+var SHADERS = {};
 var shaderLoader = new THREE.XHRLoader( loadingManager );
 shaderLoader.setResponseType( 'text' );
 shaderLoader.showStatus = true;
 
-shaderLoader.loadMultiple = function ( SHADER_CONTAINER, urlObj ) {
+shaderLoader.loadShaders = function ( SHADERS, urlObj ) {
 
 	Object.keys( urlObj ).forEach( function ( key ) {
 
 		shaderLoader.load( urlObj[ key ], function ( shader ) {
 
-			SHADER_CONTAINER[ key ] = shader;
+			SHADERS[ key ] = shader;
 
 		} );
 
@@ -31,8 +32,7 @@ shaderLoader.loadMultiple = function ( SHADER_CONTAINER, urlObj ) {
 
 };
 
-var SHADER_CONTAINER = {};
-shaderLoader.loadMultiple( SHADER_CONTAINER, {
+shaderLoader.loadShaders( SHADERS, {
 
 	passVert: 'shaders/pass.vert',
 	passFrag: 'shaders/pass.frag',
